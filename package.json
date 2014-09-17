@@ -32,6 +32,7 @@
     "passport": "*",
     "passport-local": "*",
     "request": "*",
+    "socket.io": "^1.1.0",
     "sprintf": "*",
     "strftime": "*",
     "underscore": "*",
