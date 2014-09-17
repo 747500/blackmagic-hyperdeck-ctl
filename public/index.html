@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>blackmagic-hyperdeck-ctl</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <!-- script src="/js/libs/common.js"></script -->
+        <script src="/js/libs/jquery.js"></script>
+        <!-- script src="/js/libs/jquery.inlineedit.js"></script -->
+        <script src="/js/libs/underscore.js"></script>
+        <script src="/js/libs/backbone.js"></script>
+        <script src="/index.js"></script>
+
+		<!-- script>
+			$(function () {
+				$('header h1').text($('head title').text());
+			});
+		</script -->
+    </head>
+    <body>
+        <header class="header">
+          <div class="layout">
+            <h1>Projects</h1>
+          </div>
+        </header>
+
+        <div class="layout">
+
+          <div class="new-project">
+            <button class="new-project__button">Add list</button>
+          </div>
+
+          <section class="projects">
+
+          </section>
+
+        </div>
+	</body>
+
+	<script type="text/x-template" id="template__project">
+		<article class="project" data-project-id="<%= id %>">
+			<div class="project__header">
+				<label>Title:</label>
+				<input type="text" value="<%= name %>" class="project__name" />
+				<input type="button" value="Save" class="project__action project__action_save" />
+				<input type="button" value="Remove" class="project__action project__action_remove" />
+			</div>
+		</article>
+	</script>
+
+</html>
+

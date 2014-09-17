@@ -1,0 +1,73 @@
+<div class="page head">
+<% layout('layout') -%>
+<% if (!user) { %>
+	<h2>Добро пожаловать!</h2>
+<% } else { %>
+	<h2>Здравствуйте, <%= user.username %>.</h2>
+<% } %>
+
+<% if (message) { %>
+<p><%= message %></p>
+<% } %>
+</div>
+
+<div class="page index">
+
+	<div class="separator"></div>
+
+	<div class="form login">
+		<form action="/login" method="post">
+			<div>
+				<label for="email">Email</label><br/>
+				<input type="text" name="email"/>
+			</div>
+			<div>
+				<label for="password">Пароль</label><br/>
+				<input type="password" name="password"/>
+			</div>
+			<div>
+				<input type="checkbox" name="rememberme"/>
+				<label for="rememberme">Запомнить</label>
+			</div>
+			<div>
+				<br/>
+				<input type="submit" value="Войти"/>
+			</div>
+		</form>
+
+		<div>
+			<a href="/restore">Забыли пароль?</a>
+		</div>
+	</div>
+
+	<div class="separator"></div>
+
+	<div class="form register">
+		<form action="/register" method="post">
+
+			<div>
+				<label>Имя</label><br/>
+				<input type="text" name="username"/>
+			</div>
+			<div>
+				<label for="email">Email</label><br/>
+				<input type="text" name="email"/>
+			</div>
+			<div>
+				<label>Пароль</label><br/>
+				<input type="password" name="password"/><br/>
+				<input type="password" name="password-check"/>
+			</div>
+			<div>
+				<input type="checkbox" name="agree"/>
+				<label for="rememberme">Согласен с условиями</label>
+			</div>
+			<div>
+				<br/>
+				<input type="submit" value="Зарегистрироваться"/>
+			</div>
+		</form>
+	</div>
+
+	<div class="separator"></div>
+</div>
