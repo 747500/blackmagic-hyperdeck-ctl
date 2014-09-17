@@ -1,0 +1,46 @@
+{
+  "name": "blackmagic-hyperdeck-ctl",
+  "version": "0.0.1",
+  "description": "BlackMagic HyperDeck DisckRecorder's web controller",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/747500/blackmagic-hyperdeck-ctl"
+  },
+  "keywords": [
+    "video"
+  ],
+  "dependencies": {
+    "backbone": "^1.1.2",
+    "bcrypt": "*",
+    "body-parser": "*",
+    "cookie-parser": "*",
+    "ejs": "^1.0.0",
+    "ejs-locals": "^1.0.2",
+    "errorhandler": "*",
+    "express": "*",
+    "express-session": "^1.7.6",
+    "jade": "^1.6.0",
+    "jquery": "^2.1.1",
+    "lowdb": "*",
+    "morgan": "*",
+    "normalize.css": "^3.0.1",
+    "passport": "*",
+    "passport-local": "*",
+    "request": "*",
+    "sprintf": "*",
+    "strftime": "*",
+    "underscore": "*",
+    "when": "*"
+  },
+  "author": "serge r",
+  "license": "WTFPL.org",
+  "bugs": {
+    "url": "https://github.com/747500/blackmagic-hyperdeck-ctl/issues"
+  },
+  "private": true
+}
