@@ -36,6 +36,7 @@
     "sprintf": "*",
     "strftime": "*",
     "underscore": "*",
+    "uuid": "^1.4.1",
     "when": "*"
   },
   "author": "serge r",
