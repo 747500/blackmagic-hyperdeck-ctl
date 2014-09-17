@@ -1,4 +1,4 @@
 blackmagic-hyperdeck-ctl
 ========================
 
-BlackMagic HyperDeck DisckRecorder's web controller
+BlackMagic HyperDeck Disk Recorder's web controller

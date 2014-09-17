@@ -1,7 +1,7 @@
 {
   "name": "blackmagic-hyperdeck-ctl",
   "version": "0.0.1",
-  "description": "BlackMagic HyperDeck DisckRecorder's web controller",
+  "description": "BlackMagic HyperDeck Disk Recorder's web controller",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
