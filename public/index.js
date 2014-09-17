@@ -5,12 +5,12 @@ var App = {};
 $(function () {
 
 	App.main = {
-		projects: function () {}, //Коллекция списков
+		recorders: function () {}, //Коллекция списков
 
 		init: function () {
 			console.log('App.main.init');
 
-			this.projects = new App.ProjectCollection();
+			this.recorders = new App.RecorderCollection();
 
 			this.initEvents();
 			this.initRoutes();
@@ -21,15 +21,14 @@ $(function () {
 			console.log('App.main.initEvents');
 			var self = this;
 
-			$(document).on("click", ".new-project__button", function (e) {
+			$(document).on("click", ".new-recorder__button", function (e) {
 				e.preventDefault();
 				var $this = $(this);
 
-				var new_project_name = "New Project";
-
-				self.projects.add({
+				self.recorders.add({
 					id: null,
-					name: new_project_name
+					name: "New Recorder",
+					address: "1.2.3.4:9993"
 				});
 			});
 		},
@@ -39,18 +38,18 @@ $(function () {
 			App.Router = Backbone.Router.extend({
 				routes: {
 					'': 'index',
-					'project/:id': 'getProject',
-					'project/:id/edit': 'editProject',
+					'recorder/:id': 'getRecorder',
+					'recorder/:id/edit': 'editRecorder',
 					'*default': 'default'
 				},
 				index: function () {
 					console.log('index route');
 				},
-				getProject: function (id) {
-					console.log('get project with id: %s', id);
+				getRecorder: function (id) {
+					console.log('get recorder with id: %s', id);
 				},
-				editProject: function (id) {
-					console.log('edit project with id: %s', id);
+				editRecorder: function (id) {
+					console.log('edit recorder with id: %s', id);
 				},
 				default: function (route) {
 					console.log('undefined route (404): %s', route);
@@ -63,76 +62,89 @@ $(function () {
 
 	// ----------------------------------------------------------------------
 
-	App.Project = Backbone.Model.extend({
+	App.Recorder = Backbone.Model.extend({
 		setName: function (name) {
-			console.log('App.Project.setName');
+			console.log('App.Recorder.setName');
 			this.set("name", name);
 		},
+		setAddress: function (address) {
+			console.log('App.Recorder.setAddress');
+			this.set("address", address);
+		},
 		remove: function () {
-			console.log('App.Project.remove');
+			console.log('App.Recorder.remove');
 			this.destroy()
 		}
 	});
 
-	App.ProjectCollection = Backbone.Collection.extend({
-		model: App.Project,
-		url: "/projects",
+	App.RecorderCollection = Backbone.Collection.extend({
+		model: App.Recorder,
+		url: "/recorders",
 		initialize: function () {
-			console.log('App.ProjectCollection.initialize');
+			console.log('App.RecorderCollection.initialize');
 			this.initEvents();
 			this.fetch();
 		},
 		initEvents: function () {
-			console.log('App.ProjectCollection.initEvents');
+			console.log('App.RecorderCollection.initEvents');
 			this.on("add", this.listenAdd);
 		},
 		listenAdd: function (model) {
-			console.log('App.ProjectCollection.listenAdd');
-			var view = new App.ProjectView({
+			console.log('App.RecorderCollection.listenAdd');
+			var view = new App.RecorderView({
 				model: model
 			});
 			view.render();
-			$(".projects").append(view.$el);
+			$(".recorders").append(view.$el);
 		}
 	});
 
-	var projectTemplate = false;
-	App.ProjectView = Backbone.View.extend({
+	var recorderTemplate = false;
+	App.RecorderView = Backbone.View.extend({
 		events: {
-			"click .project__action_remove": "removeAction"
+			"click .recorder__action_remove": "removeAction"
 		},
 		initialize: function () {
-			console.log('App.ProjectView.initialize');
-			this.projectChangeName();
+			console.log('App.RecorderView.initialize');
+			this.recorderChangeName();
+			this.recorderChangeAddress();
 		},
-		projectChangeName: function () {
-			console.log('App.ProjectView.projectChangeName');
+		recorderChangeName: function () {
+			console.log('App.RecorderView.recorderChangeName');
 			this.model.on("change:name", function (model, name) {
-				console.log('App.ProjectView.projectChangeName on change:name');
-				this.$el.find(".project__name").text(name);
+				console.log('App.RecorderView.recorderChangeName on change:name');
+				this.$el.find(".recorder__name").text(name);
+			}, this);
+		},
+		recorderChangeAddress: function () {
+			console.log('App.RecorderView.recorderChangeAddress');
+			this.model.on("change:address", function (model, address) {
+				console.log('App.RecorderView.recorderChangeAddress on change:address');
+				this.$el.find(".recorder__address").text(address);
 			}, this);
 		},
 		render: function () {
-			console.log('App.ProjectView.render');
-			if(!projectTemplate) {
-				projectTemplate = _.template($("#template__project").text());
+			console.log('App.RecorderView.render');
+			if(!recorderTemplate) {
+				recorderTemplate = _.template($("#template__recorder").text());
 			}
 			var data = this.model.toJSON();
-			var markup = projectTemplate(data);
+			var markup = recorderTemplate(data);
 			this.setElement($(markup).get(0));
 			this.initControls();
 		},
 		initControls: function () {
-			console.log('App.ProjectView.initControls');
+			console.log('App.RecorderView.initControls');
 			var self = this;
-			this.$el.find(".project__action_save").on("click", function (e) {
+			this.$el.find(".recorder__action_save").on("click", function (e) {
 				e.preventDefault();
-				self.model.setName(self.$el.find(".project__name").val());
+				self.model.setName(self.$el.find(".recorder__name").val());
+				self.model.setAddress(self.$el.find(".recorder__address").val());
 				self.model.save();
 			});
 		},
 		removeAction: function (e) {
-			console.log('App.ProjectView.removeAction');
+			console.log('App.RecorderView.removeAction');
 			this.$el.remove();
 			this.model.remove();
 		}

@@ -27,30 +27,30 @@
     <body>
         <header class="header">
           <div class="layout">
-            <h1>Projects</h1>
+            <h1>Blackmagic HyperDeck controller</h1>
           </div>
         </header>
 
         <div class="layout">
 
-          <div class="new-project">
-            <button class="new-project__button">Add list</button>
+          <div class="new-recorder">
+            <button class="new-recorder__button">Add recorder</button>
           </div>
 
-          <section class="projects">
+          <section class="recorders">
 
           </section>
 
         </div>
 	</body>
 
-	<script type="text/x-template" id="template__project">
-		<article class="project" data-project-id="<%= id %>">
-			<div class="project__header">
-				<label>Title:</label>
-				<input type="text" value="<%= name %>" class="project__name" />
-				<input type="button" value="Save" class="project__action project__action_save" />
-				<input type="button" value="Remove" class="project__action project__action_remove" />
+	<script type="text/x-template" id="template__recorder">
+		<article class="recorder" data-recorder-id="<%= id %>">
+			<div class="recorder__header">
+				<input type="text" value="<%= name %>" class="recorder__name" />
+				<input type="text" value="<%= address %>" class="recorder__address" />
+				<input type="button" value="Save" class="recorder__action recorder__action_save" />
+				<input type="button" value="Remove" class="recorder__action recorder__action_remove" />
 			</div>
 		</article>
 	</script>
