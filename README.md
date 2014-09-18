@@ -7,7 +7,7 @@ BlackMagic HyperDeck Disk Recorder's web controller
 ### Pre-req
 - XCode from AppStore;
 - HomeBrew from http://brew.sh/;
-- in terminal: `sudo brew install node git`.
+- in terminal: `brew install node git`.
 
 ### Install and run
 In terminal:
