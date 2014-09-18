@@ -11,6 +11,13 @@ var db = low('db.json');
 
 console.log(db('recorders').value());
 
+db('recorders').value().map(function (el) {
+	process.emit('recorder', {
+		action: 'load',
+		data: el
+	});
+});
+
 module.exports = function (app) {
 
 	app.get('/', function (req, res, next) {

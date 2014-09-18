@@ -4,6 +4,12 @@ var App = {};
 
 $(function () {
 
+	var socket = io.connect();
+	socket.on('recorder', function (data) {
+		console.log(data);
+		socket.emit('my other event', { my: 'data' });
+	});
+
 	App.main = {
 		recorders: function () {}, //Коллекция списков
 
