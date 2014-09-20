@@ -34,6 +34,7 @@ server.listen(bindTo.port, bindTo.host, function () {
 io.on('connection', function (socket) {
 
 	socket.emit('recorder', { hello: 'world' });
+
 	socket.on('my other event', function (data) {
 		console.log(data);
 	});

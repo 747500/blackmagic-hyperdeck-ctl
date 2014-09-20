@@ -92,17 +92,18 @@ textarea {
 
 /* mine */
 
-article.todo {
-	border: 1px dotted #ccc;
-	padding: 1em 2em;
+article.recorder {
 	margin: 1em 2em;
 }
 
-.task {
-    padding: .5em 1em;
+article.new-recorder {
+	margin: 1em 2em;
 }
 
-.task_complete {
-    background: #ccc;
+div.hr {
+	background-color: #ccc;
+	margin: 0;
+	padding: 0;
+	height: 1px;
 }
 

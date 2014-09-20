@@ -27,31 +27,63 @@
     </head>
     <body>
         <header class="header">
-          <div class="layout">
-            <h1>Blackmagic HyperDeck controller</h1>
-          </div>
+			<div class="layout">
+				<h1>Blackmagic HyperDeck controller</h1>
+			</div>
         </header>
 
         <div class="layout">
 
-          <div class="new-recorder">
-            <button class="new-recorder__button">Add recorder</button>
-          </div>
+			<article class="new-recorder">
+				<form>
+					<div>
+						<label>
+							<div>ID</div>
+							<input type="text" readonly="readonly" value="" class="recorder__id" />
+						</label>
+					</div>
+					<div>
+						<label>
+							<div>Name</div>
+							<input type="text" value="" class="recorder__name" />
+						</label>
+					</div>
+					<div>
+						<label>
+							<div>IP address</div>
+							<input type="text" value="" class="recorder__address" />
+						</label>
+					</div>
+					<div>
+						<label>
+							<div>Port</div>
+							<input type="text" value="" class="recorder__port" />
+						</label>
+					</div>
+					<div>
+						<button type="submit">Сохранить</button>
+					</div>
+				</form>
+			</article>
+			<div class="hr"></div>
+			<section class="recorders">
 
-          <section class="recorders">
+			</section>
 
-          </section>
-
-        </div>
+		</div>
 	</body>
 
 	<script type="text/x-template" id="template__recorder">
 		<article class="recorder" data-recorder-id="<%= id %>">
-			<div class="recorder__header">
-				<input type="text" value="<%= name %>" class="recorder__name" />
-				<input type="text" value="<%= address %>" class="recorder__address" />
-				<input type="button" value="Save" class="recorder__action recorder__action_save" />
-				<input type="button" value="Remove" class="recorder__action recorder__action_remove" />
+			<div class="recorder">
+				<div class="recorder__data">
+					<div class="recorder__name"><%= name %></div>
+					<span class="recorder__address"><%= address %></span>:<span class="recorder__port"><%= port %></span>
+				</div
+				<div class="recorder__buttons">
+					<button class="recorder__action recorder__action_edit">Edit</button>
+					<button class="recorder__action recorder__action_remove">Remove</button>
+				</div>
 			</div>
 		</article>
 	</script>

@@ -1,6 +1,7 @@
 
 "use strict";
 
+var util = require('util');
 var fs = require('fs');
 
 var _ = require('underscore');
@@ -11,11 +12,8 @@ var db = low('db.json');
 
 console.log(db('recorders').value());
 
-db('recorders').value().map(function (el) {
-	process.emit('recorder', {
-		action: 'load',
-		data: el
-	});
+db('recorders').value().map(function (recorder) {
+	process.emit('recorder:connect', recorder);
 });
 
 module.exports = function (app) {
@@ -32,10 +30,11 @@ module.exports = function (app) {
 	});
 
 	app.post('/recorders', function (req, res, next) {
-		var recorder = req.body;
-		recorder.id = uuid();
+		req.body.id = uuid();
 
-		db('recorders').push(recorder);
+		var recorder = db('recorders').push(req.body);
+		db.save();
+		process.emit('recorder:connect', recorder.value());
 
 		res.status(200).send(recorder);
 	});
@@ -54,7 +53,10 @@ module.exports = function (app) {
 			return;
 		}
 
+		process.emit('recorder:disconnect', recorder.value());
 		recorder.assign(req.body);
+		db.save();
+		process.emit('recorder:connect', recorder.value());
 
 		res.status(200).send(recorder);
 	});
@@ -68,7 +70,9 @@ module.exports = function (app) {
 			return;
 		}
 
+		process.emit('recorder:disconnect', recorder.value());
 		db('recorders').remove({ id: req.params.id });
+		db.save();
 
 		res.status(200).send({});	
 	});

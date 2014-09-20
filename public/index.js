@@ -5,6 +5,7 @@ var App = {};
 $(function () {
 
 	var socket = io.connect();
+
 	socket.on('recorder', function (data) {
 		console.log(data);
 		socket.emit('my other event', { my: 'data' });
@@ -27,15 +28,36 @@ $(function () {
 			console.log('App.main.initEvents');
 			var self = this;
 
-			$(document).on("click", ".new-recorder__button", function (e) {
+			$(document).on("submit", ".new-recorder form", function (e) {
 				e.preventDefault();
 				var $this = $(this);
+				var recorderId = $this.find('.recorder__id').val();
+				var model = self.recorders.find({ id: recorderId });
 
-				self.recorders.add({
-					id: null,
-					name: "New Recorder",
-					address: "1.2.3.4:9993"
-				});
+				if (!model) {
+					model = self.recorders.add({
+						id: null,
+						name: $this.find('.recorder__name').val(),
+						address: $this.find('.recorder__address').val(),
+						port: (parseInt($this.find('.recorder__port').val(), 10) || 9993).toString()
+					});
+				}
+				else {
+					model.set({
+						name: $this.find('.recorder__name').val(),
+						address: $this.find('.recorder__address').val(),
+						port: (parseInt($this.find('.recorder__port').val(), 10) || 9993).toString()
+					});
+				}
+
+				model.save();
+
+				$this.find('.recorder__id').val(null);
+				$this.find('.recorder__name').val('');
+				$this.find('.recorder__address').val('');
+				$this.find('.recorder__port').val('');
+
+//				$this.hide();
 			});
 		},
 
@@ -111,23 +133,20 @@ $(function () {
 			"click .recorder__action_remove": "removeAction"
 		},
 		initialize: function () {
+			var self = this;
 			console.log('App.RecorderView.initialize');
-			this.recorderChangeName();
-			this.recorderChangeAddress();
-		},
-		recorderChangeName: function () {
-			console.log('App.RecorderView.recorderChangeName');
-			this.model.on("change:name", function (model, name) {
-				console.log('App.RecorderView.recorderChangeName on change:name');
-				this.$el.find(".recorder__name").text(name);
-			}, this);
-		},
-		recorderChangeAddress: function () {
-			console.log('App.RecorderView.recorderChangeAddress');
-			this.model.on("change:address", function (model, address) {
-				console.log('App.RecorderView.recorderChangeAddress on change:address');
-				this.$el.find(".recorder__address").text(address);
-			}, this);
+			
+			this.model.on('change', function (model, options) {
+				_(model.changed).keys().forEach(function (k) {
+					console.log(k);
+					if ('id' === k) {
+						self.$el.data('recorder-id', model.changed[k]);
+					}
+					else {
+						self.$el.find('.recorder__' + k).text(model.changed[k]);
+					}
+				});
+			});
 		},
 		render: function () {
 			console.log('App.RecorderView.render');
@@ -142,11 +161,15 @@ $(function () {
 		initControls: function () {
 			console.log('App.RecorderView.initControls');
 			var self = this;
-			this.$el.find(".recorder__action_save").on("click", function (e) {
+			this.$el.find(".recorder__action_edit").on("click", function (e) {
 				e.preventDefault();
-				self.model.setName(self.$el.find(".recorder__name").val());
-				self.model.setAddress(self.$el.find(".recorder__address").val());
-				self.model.save();
+				var $editForm = $('.new-recorder form');
+
+				$editForm.find('.recorder__id').val(self.$el.data('recorder-id'));
+				$editForm.find('.recorder__name').val(self.$el.find(".recorder__name").text());
+				$editForm.find('.recorder__address').val(self.$el.find(".recorder__address").text());
+				$editForm.find('.recorder__port').val(self.$el.find(".recorder__port").text());
+//				$editForm.show();
 			});
 		},
 		removeAction: function (e) {
