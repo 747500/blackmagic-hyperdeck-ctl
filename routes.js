@@ -8,15 +8,15 @@ var _ = require('underscore');
 var uuid = require('uuid');
 var low = require('lowdb');
 
+var tcp = require('./tcp.js');
+
 var db = low('db.json');
 
-console.log(db('recorders').value());
-
 db('recorders').value().map(function (recorder) {
-	process.emit('recorder:connect', recorder);
+	tcp.memberConnect(recorder);
 });
 
-module.exports = function (app) {
+module.exports = function (app, io) {
 
 	app.get('/', function (req, res, next) {
 		res.render('index', {
@@ -25,56 +25,57 @@ module.exports = function (app) {
 		});
 	});
 
-	app.get('/recorders', function (req, res, next) {
-		res.status(200).send(db('recorders').value());
+	io.on('connection', function (socket) {
+
+		console.log('socket.io: new socket');
+
+		socket.on('read:recorders', function (data, reply) {
+			reply(db('recorders').value());
+		});
+
+		socket.on('update:recorders', function (data, reply) {
+			var recorder = db('recorders').find({ id: data.id });
+
+			if (!recorder) {
+				console.log('recorder not found:\n%s\n', data);
+				return;
+			}
+
+			recorder.assign(data);
+			db.save();
+
+			reply(recorder.value());
+		});
+
+		socket.on('create:recorders', function (data, reply) {
+			data.id = uuid();
+			var recorder = db('recorders').push(data);
+			db.save();
+			reply(recorder.value());
+		});
+
+		socket.on('delete:recorders', function (data, reply) {
+			var recorder = db('recorders').find({ id: data.id });
+
+			if (!recorder) {
+				console.log('recorder not found:\n%s\n', data);
+				return;
+			}
+
+			db('recorders').remove({ id: data.id });
+			db.save();
+			reply({});	
+		});
+
+		socket.on('disconnect', function () {
+			console.log('socket.io: socket disconnect');
+		});
+
+		socket.on('error', function (err) {
+			consoe.log('socket.io: socket error:\n%s\n', err.stack || err);
+		})
+
 	});
 
-	app.post('/recorders', function (req, res, next) {
-		req.body.id = uuid();
-
-		var recorder = db('recorders').push(req.body);
-		db.save();
-		process.emit('recorder:connect', recorder.value());
-
-		res.status(200).send(recorder);
-	});
-
-	app.put('/recorders/:id', function (req, res, next) {
-
-		if (req.params.id !== req.body.id) {
-			res.status(400).send('recorder id does not match');
-			return;
-		}
-
-		var recorder = db('recorders').find({ id: req.params.id });
-
-		if (!recorder) {
-			res.status(404).send('recorder not found');
-			return;
-		}
-
-		process.emit('recorder:disconnect', recorder.value());
-		recorder.assign(req.body);
-		db.save();
-		process.emit('recorder:connect', recorder.value());
-
-		res.status(200).send(recorder);
-	});
-
-	app.delete('/recorders/:id', function (req, res, next) {
-
-		var recorder = db('recorders').find({ id: req.params.id });
-
-		if (!recorder) {
-			res.status(404).send('recorder not found');
-			return;
-		}
-
-		process.emit('recorder:disconnect', recorder.value());
-		db('recorders').remove({ id: req.params.id });
-		db.save();
-
-		res.status(200).send({});	
-	});
 };
 

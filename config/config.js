@@ -34,7 +34,7 @@ module.exports = {
 
 function console_log() {
 	var now = new Date();
-	var strTs = strftime('%d %b %Y %T %Z', now);
+	var strTs = strftime('%d %b %Y %T.%L %Z', now);
 //	var hname = (os.hostname() || process.env.HOSTNAME || 'localhost'),
 	var pname = path.basename(require.main.filename, '.js');
 	var prefix = [ '%s %s[%s]: ', strTs, pname, process.pid ];

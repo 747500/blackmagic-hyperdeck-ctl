@@ -50,8 +50,8 @@
 					</div>
 					<div>
 						<label>
-							<div>IP address</div>
-							<input type="text" value="" class="recorder__address" />
+							<div>Host</div>
+							<input type="text" value="" class="recorder__host" />
 						</label>
 					</div>
 					<div>
@@ -70,6 +70,12 @@
 
 			</section>
 
+			<section class="messages">
+				<dl>
+					<dt>Messages</dt>
+				</dl>
+			</section>
+
 		</div>
 	</body>
 
@@ -78,7 +84,7 @@
 			<div class="recorder">
 				<div class="recorder__data">
 					<div class="recorder__name"><%= name %></div>
-					<span class="recorder__address"><%= address %></span>:<span class="recorder__port"><%= port %></span>
+					<span class="recorder__host"><%= host %></span>:<span class="recorder__port"><%= port %></span>
 				</div
 				<div class="recorder__buttons">
 					<button class="recorder__action recorder__action_edit">Edit</button>

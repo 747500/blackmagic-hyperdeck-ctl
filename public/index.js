@@ -1,3 +1,4 @@
+
 "use strict";
 
 var App = {};
@@ -11,8 +12,29 @@ $(function () {
 		socket.emit('my other event', { my: 'data' });
 	});
 
+	var bbsync = Backbone.sync;
+
+	Backbone.sync = function(method, model, options) {
+		var evName, evData;
+
+		if ('read' === method) {
+			evName = method + ':' + model.url;
+			evData = {};
+		}
+		else {
+			evName = method + ':' + model.collection.url;
+			evData = model.attributes;
+		}
+
+		socket.emit(evName, evData, options.success);
+
+		console.log(method);
+		console.log(model);
+		console.log(options);
+	};
+
 	App.main = {
-		recorders: function () {}, //Коллекция списков
+		recorders: function () {},
 
 		init: function () {
 			console.log('App.main.init');
@@ -38,14 +60,14 @@ $(function () {
 					model = self.recorders.add({
 						id: null,
 						name: $this.find('.recorder__name').val(),
-						address: $this.find('.recorder__address').val(),
+						host: $this.find('.recorder__host').val(),
 						port: (parseInt($this.find('.recorder__port').val(), 10) || 9993).toString()
 					});
 				}
 				else {
 					model.set({
 						name: $this.find('.recorder__name').val(),
-						address: $this.find('.recorder__address').val(),
+						host: $this.find('.recorder__host').val(),
 						port: (parseInt($this.find('.recorder__port').val(), 10) || 9993).toString()
 					});
 				}
@@ -54,7 +76,7 @@ $(function () {
 
 				$this.find('.recorder__id').val(null);
 				$this.find('.recorder__name').val('');
-				$this.find('.recorder__address').val('');
+				$this.find('.recorder__host').val('');
 				$this.find('.recorder__port').val('');
 
 //				$this.hide();
@@ -95,9 +117,9 @@ $(function () {
 			console.log('App.Recorder.setName');
 			this.set("name", name);
 		},
-		setAddress: function (address) {
-			console.log('App.Recorder.setAddress');
-			this.set("address", address);
+		setHost: function (host) {
+			console.log('App.Recorder.setost');
+			this.set("host", host);
 		},
 		remove: function () {
 			console.log('App.Recorder.remove');
@@ -107,7 +129,7 @@ $(function () {
 
 	App.RecorderCollection = Backbone.Collection.extend({
 		model: App.Recorder,
-		url: "/recorders",
+		url: "recorders",
 		initialize: function () {
 			console.log('App.RecorderCollection.initialize');
 			this.initEvents();
@@ -167,7 +189,7 @@ $(function () {
 
 				$editForm.find('.recorder__id').val(self.$el.data('recorder-id'));
 				$editForm.find('.recorder__name').val(self.$el.find(".recorder__name").text());
-				$editForm.find('.recorder__address').val(self.$el.find(".recorder__address").text());
+				$editForm.find('.recorder__host').val(self.$el.find(".recorder__host").text());
 				$editForm.find('.recorder__port').val(self.$el.find(".recorder__port").text());
 //				$editForm.show();
 			});

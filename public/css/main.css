@@ -93,7 +93,9 @@ textarea {
 /* mine */
 
 article.recorder {
-	margin: 1em 2em;
+	margin: .5em 1em;
+	padding: .5em 1em;
+	border: 1px dotted #ccc;
 }
 
 article.new-recorder {
@@ -105,5 +107,21 @@ div.hr {
 	margin: 0;
 	padding: 0;
 	height: 1px;
+}
+
+section.recorders {
+	padding: .5em 1em;
+	margin: .5em 1em;
+	border: 1px dotted #ccc;
+	float: left;
+	clear: left;
+}
+
+section.messages {
+	padding: .5em 1em;
+	margin: .5em 1em;
+	border: 1px dotted #ccc;
+	float: left;
+	clear: right;
 }
 
