@@ -7,11 +7,6 @@ $(function () {
 
 	var socket = io.connect();
 
-	socket.on('recorder', function (data) {
-		console.log(data);
-		socket.emit('my other event', { my: 'data' });
-	});
-
 	var bbsync = Backbone.sync;
 
 	Backbone.sync = function(method, model, options) {
@@ -28,9 +23,9 @@ $(function () {
 
 		socket.emit(evName, evData, options.success);
 
-		console.log(method);
-		console.log(model);
-		console.log(options);
+	//	console.log(method);
+	//	console.log(model);
+	//	console.log(options);
 	};
 
 	App.main = {
@@ -49,6 +44,12 @@ $(function () {
 		initEvents: function () {
 			console.log('App.main.initEvents');
 			var self = this;
+
+			$(document).on("submit", ".commander form", function (e) {
+				e.preventDefault();
+				var command = $(this).find('.command').val();
+				socket.emit('command:recorders', command);
+			});
 
 			$(document).on("submit", ".new-recorder form", function (e) {
 				e.preventDefault();
@@ -124,6 +125,9 @@ $(function () {
 		remove: function () {
 			console.log('App.Recorder.remove');
 			this.destroy()
+		},
+		addMessage: function (data) {
+			this.set('message', data.error || data.message || '');
 		}
 	});
 
@@ -160,13 +164,20 @@ $(function () {
 			
 			this.model.on('change', function (model, options) {
 				_(model.changed).keys().forEach(function (k) {
-					console.log(k);
+
 					if ('id' === k) {
 						self.$el.data('recorder-id', model.changed[k]);
+						return;
 					}
-					else {
-						self.$el.find('.recorder__' + k).text(model.changed[k]);
+
+					if ('message' === k) {
+						self.$el.find('.messages tbody').append(
+							'<tr><td>' + model.changed[k] + '</td><tr>'
+						);
+						return;
 					}
+
+					self.$el.find('.recorder__' + k).text(model.changed[k]);
 				});
 			});
 		},
@@ -202,6 +213,24 @@ $(function () {
 	});
 
 	// ----------------------------------------------------------------------
+
+	socket.on('event:recorders', function (data) {
+	//	console.log(data);
+		var ddClass = 'message';
+
+		if (data.error) {
+			ddClass = 'error';
+		}
+
+		var text = data[ddClass];
+		var model = App.main.recorders.get(data.recorder.id);
+
+		model.addMessage({
+			createdAt: data.createdAt,
+			message: text
+		});
+
+	});
 
 	App.main.init();
 

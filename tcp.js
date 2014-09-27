@@ -4,6 +4,7 @@
 var events = require('events');
 var net = require('net');
 
+var _ = require('underscore');
 var readline = require('readline');
 
 var Party;
@@ -17,17 +18,23 @@ Party.prototype = new events.EventEmitter();
 
 Party.prototype.memberConnect = function (info) {
 	var self = this;
-	var socket = this.list[info.id];
 
-	if ('undefined' !== typeof socket) {
+	if ('undefined' !== typeof this.list[info.id]) {
 		console.log('memberConnect: socket listed:\n%s\n', info);
 		return;
 	}
 
-	socket = net.connect({
+	var recorder = this.list[info.id] = {
+		socket: undefined,
+		reply: ''
+	};
+
+	var socket = net.connect({
 		host: info.host,
 		port: info.port
 	});
+
+	recorder.socket = socket;
 
 	var rd = readline.createInterface({
 		input: socket,
@@ -35,29 +42,45 @@ Party.prototype.memberConnect = function (info) {
 		terminal: false
 	});
 
-	var lastMessage = {
-		incomplete: true,
-		data: ''
-	};
-
 	rd.on('line', function (data) {
-		if (lastMessage.incomplete) {
-			lastMessage.data += data.toString();
+	
+		data = data.toString();
+
+		if (recorder.reply.length === 0) {
+			if (data.match(/:$/)) {
+				recorder.reply += data + '\n';
+				return;
+			}
+
+			self.emit('event:recorders', {
+				createdAt: new Date(),
+				message: data + '\n',
+				recorder: info
+			});
+			return;		
 		}
 
-		console.log('socket: data:\n%s\n', data.toString());
+		if (0 !== data.length) {
+			recorder.reply += data + '\n';
+			return;
+		}
+
+		self.emit('event:recorders', {
+			createdAt: new Date(),
+			message: recorder.reply,
+			recorder: info
+		});
+		
+		recorder.reply = '';
 	});
 
 	socket.on('connect', function () {
 		console.log('socket: connect');
-
-		socket.write('ping\r\n');
 	});
 
 	socket.on('end', function () {
-		console.log('socket: end:\n%s\n', arguments);
+		console.log('socket: end');
 		delete self.list[info.id];
-
 	});
 
 	socket.on('error', function (err) {
@@ -65,47 +88,43 @@ Party.prototype.memberConnect = function (info) {
 
 		console.log('socket err:\n%s\n', err.stack || err);
 		socket.destroy();
+		
+		self.emit('event:recorders', {
+			createdAt: new Date(),
+			error: err.toString(),
+			recorder: info
+		});
 	});
-
-	this.list[info.id] = socket;
 
 };
 
 Party.prototype.memberDisconnect = function (data) {
 
-	var socket = this.list[data.id];
+	var recorder = this.list[data.id];
 	
-	if ('object' !== typeof socket) {
-		console.log('memberConnect: socket unlisted:\n%s\n', info);
+	if ('object' !== typeof recorder) {
+		console.log('memberConnect: socket unlisted:\n%s\n', data);
 		return;
 	}
 
-	socket.end();
-	delete this.list[info.id];
+	recorder.socket.end();
+	delete this.list[data.id];
 };
 
 Party.prototype.memberIsConnected = function (data) {
-	var socket = this.list[data.id];
-	return 'object' === typeof socket;
+	var recorder = this.list[data.id];
+	return 'object' === typeof recorder;
 };
 
+Party.prototype.memberCommand = function (command) {
+	console.log('>>> %s', _(this.list).keys().length);
+	
+	_(this.list).values().map(function (recorder) {
+		recorder.socket.write(command + '\n');
+	});
+
+};
+
+// singleton
 module.exports = new Party();
-
-/*
-process.on('recorder:connect', function (data) {
-
-	console.log('CONNECT\n%s\n', data);
-
-	party.memberConnect(data);
-
-});
-
-process.on('recorder:disconnect', function (data) {
-
-	console.log('DISCONNECT\n%s\n', data);
-
-	party.memberDisconnect(data);
-
-});
-*/
 

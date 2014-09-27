@@ -117,11 +117,9 @@ section.recorders {
 	clear: left;
 }
 
-section.messages {
-	padding: .5em 1em;
-	margin: .5em 1em;
-	border: 1px dotted #ccc;
-	float: left;
-	clear: right;
+
+.messages .error {
+	color: #811;
 }
+
 

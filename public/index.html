@@ -34,6 +34,13 @@
 
         <div class="layout">
 
+			<section class="commander">
+				<form>
+					<input type="text" value="" class="command" />
+					<button type="submit">Send</button>
+				</form>
+			</section>
+
 			<article class="new-recorder">
 				<form>
 					<div>
@@ -70,12 +77,6 @@
 
 			</section>
 
-			<section class="messages">
-				<dl>
-					<dt>Messages</dt>
-				</dl>
-			</section>
-
 		</div>
 	</body>
 
@@ -90,6 +91,7 @@
 					<button class="recorder__action recorder__action_edit">Edit</button>
 					<button class="recorder__action recorder__action_remove">Remove</button>
 				</div>
+				<table class="messages"><tbody></tbody></table>
 			</div>
 		</article>
 	</script>

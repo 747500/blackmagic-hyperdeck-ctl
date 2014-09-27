@@ -29,6 +29,23 @@ module.exports = function (app, io) {
 
 		console.log('socket.io: new socket');
 
+		function messageForwarder(data) {
+			socket.emit('event:recorders', data);
+		}
+
+		tcp.on('event:recorders', messageForwarder);
+
+		socket.on('disconnect', function () {
+			tcp.removeListener('event:recorders', messageForwarder);
+			console.log('socket.io: socket disconnect');
+		});
+
+		socket.on('error', function (err) {
+			consoe.log('socket.io: socket error:\n%s\n', err.stack || err);
+		})
+
+		// ------------------------------------------------------------------
+
 		socket.on('read:recorders', function (data, reply) {
 			reply(db('recorders').value());
 		});
@@ -43,6 +60,8 @@ module.exports = function (app, io) {
 
 			recorder.assign(data);
 			db.save();
+			tcp.memberDisconnect(data);
+			tcp.memberConnect(data);
 
 			reply(recorder.value());
 		});
@@ -51,6 +70,7 @@ module.exports = function (app, io) {
 			data.id = uuid();
 			var recorder = db('recorders').push(data);
 			db.save();
+			tcp.memberConnect(data);
 			reply(recorder.value());
 		});
 
@@ -64,17 +84,15 @@ module.exports = function (app, io) {
 
 			db('recorders').remove({ id: data.id });
 			db.save();
+			tcp.memberDisconnect(data);
 			reply({});	
 		});
 
-		socket.on('disconnect', function () {
-			console.log('socket.io: socket disconnect');
+
+		socket.on('command:recorders', function (data) {
+			console.log('%s', data);
+			tcp.memberCommand(data);		
 		});
-
-		socket.on('error', function (err) {
-			consoe.log('socket.io: socket error:\n%s\n', err.stack || err);
-		})
-
 	});
 
 };
