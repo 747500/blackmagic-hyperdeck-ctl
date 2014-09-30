@@ -11,15 +11,19 @@ var readline = require('readline');
 var server = net.createServer({
 	allowHalfOpen: false
 }, function(socket) {
-
-	console.log('client connected');
+	var remoteAddress = socket.remoteAddress,
+		remotePort = socket.remotePort;
+		
+	console.log('client connected %s:%s',
+			remoteAddress, remotePort);
 
 	socket.on('error', function (err) {
 		console.log(err);
 	});
 
 	socket.on('close', function () {
-		console.log('client disconnected');
+		console.log('client disconnected %s:%s',
+				remoteAddress, remotePort);
 	});
 
 	socket.write(
@@ -39,18 +43,46 @@ var server = net.createServer({
 
 		console.log('>>> %s', line);
 
+		if (line.match(/^remote/)) {
+			socket.write('210 remote info:\n' +
+					'enabled: "false"\n' +
+					'override: "false"\n' +
+					'\n');
+			return;
+		}
+
 		if (line.match(/^ping/)) {
 			socket.write('200 Ok\n');
 			return;
 		}
 
-		if (line.match(/^quit/)) {
-			socket.write('200 Ok\n');
-			socket.end();
+		if (line.match(/^help/)) {
+			socket.write('201 help:\n' +
+					'{Help text})\n' +
+					'{Help text})\n' +
+					'\n');
 			return;
 		}
 
-		socket.write(util.format('100 Unsupported command: "%s"\n', line));
+		if (line.match(/^quit/)) {
+			socket.write('200 ok\n');
+			socket.end();
+			socket.destroy();
+			return;
+		}
+
+		if (line.match(/^device info/)) {
+			socket.write(
+				'204 device info:\n' +
+				'protocol version: {Version}\n' +
+				'model: {Model Name}\n' +
+				'unique id: {unique alphanumeric identifier}\n' +
+				'\n'
+			);
+			return;
+		}
+
+		socket.write(util.format('100 Syntax error: "%s"\n', line));
 	});
 });
 
@@ -65,6 +97,8 @@ server.listen(port, address, function (err) {
 		return;
 	}
 
-	console.log('%s:%s...', address, port);
+	console.log('listen %s:%s...', address, port);
 
 });
+
+

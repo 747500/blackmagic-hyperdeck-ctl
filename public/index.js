@@ -127,7 +127,9 @@ $(function () {
 			this.destroy()
 		},
 		addMessage: function (data) {
-			this.set('message', data.error || data.message || '');
+			var text = data.createdAt.toString() +
+					' ' + (data.error || data.message || '');
+			this.set('message', text);
 		}
 	});
 
