@@ -92,14 +92,20 @@ textarea {
 
 /* mine */
 
-article.recorder {
-	margin: .5em 1em;
-	padding: .5em 1em;
-	border: 1px dotted #ccc;
+html {
+	background-color: #484c4f;
+	color: #eeeeee;
 }
 
-article.new-recorder {
-	margin: 1em 2em;
+header, section {
+	margin: 1em 1em;
+}
+
+article {
+	margin: .5em 0;
+	padding: .5em 1em;
+	background-color: #323535;
+	border-radius: .5em;
 }
 
 div.hr {
@@ -109,17 +115,44 @@ div.hr {
 	height: 1px;
 }
 
-section.recorders {
-	padding: .5em 1em;
-	margin: .5em 1em;
-	border: 1px dotted #ccc;
+.recorder-info {
 	float: left;
-	clear: left;
+	height: 7em;
 }
 
+.messages {
+	float: left;
+	margin: 0 1em;
+}
+
+.messages tbody {
+	float: left;
+	height: 7em;
+	width: 70em;
+	overflow-y: scroll;
+	overflow-x: auto;
+	background-color: #ffe;
+	color: #333;
+}
+
+tr {
+	text-align: left;
+	vertical-align: top;
+}
 
 .messages .error {
 	color: #811;
+}
+
+.messages pre {
+	margin: 0;
+}
+
+
+.clear {
+	clear: both;
+	height: 1px;
+	overflow: hidden;
 }
 
 

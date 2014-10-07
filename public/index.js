@@ -30,11 +30,12 @@ $(function () {
 
 	App.main = {
 		recorders: function () {},
-
+		messages: function () {},
 		init: function () {
 			console.log('App.main.init');
 
 			this.recorders = new App.RecorderCollection();
+			this.messages = new App.MessageCollection();
 
 			this.initEvents();
 			this.initRoutes();
@@ -173,8 +174,8 @@ $(function () {
 					}
 
 					if ('message' === k) {
-						self.$el.find('.messages tbody').append(
-							'<tr><td>' + model.changed[k] + '</td><tr>'
+						self.$el.find('.messages tbody').prepend(
+							'<tr><td><pre>' + model.changed[k] + '</pre></td><tr>'
 						);
 						return;
 					}
@@ -216,20 +217,109 @@ $(function () {
 
 	// ----------------------------------------------------------------------
 
+	App.Message = Backbone.Model.extend({
+		setTimestamp: function (data) {
+			this.set('timestamp', data);
+		},
+		setText: function (data) {
+			this.set('text', data);
+		},
+		setType: function (data) {
+			this.set('type', data);
+		},
+		remove: function () {
+			console.log('App.Message.remove');
+			this.destroy()
+		}
+	});
+
+	App.MessageCollection = Backbone.Collection.extend({
+		model: App.Message,
+		url: 'messages',
+		initialize: function () {
+			console.log('App.MessageCollection.initialize');
+			this.fetch();
+		},
+		listenAdd: function (model) {
+			console.log('App.MessageCollection.listenAdd');
+			var view = new App.MessageView({
+				model: model
+			});
+			view.render();
+			$('.messages').append(view.$el);
+		}
+	});
+
+	var messageTemplate = false;
+	App.MessageView = Backbone.View.extend({
+		events: {
+//			"click .recorder__action_remove": "removeAction"
+		},
+		initialize: function () {
+			var self = this;
+			console.log('App.MessageView.initialize');
+			
+			this.model.on('change', function (model, options) {
+				_(model.changed).keys().forEach(function (k) {
+					console.log(': %s', k);
+/*
+					if ('id' === k) {
+						self.$el.data('recorder-id', model.changed[k]);
+						return;
+					}
+
+					if ('message' === k) {
+						self.$el.find('.messages tbody').prepend(
+							'<tr><td><pre>' + model.changed[k] + '</pre></td><tr>'
+						);
+						return;
+					}
+
+					self.$el.find('.recorder__' + k).text(model.changed[k]);
+*/
+				});
+			});
+		},
+		render: function () {
+			console.log('App.MessageView.render');
+			if(!recorderTemplate) {
+				recorderTemplate = _.template($("#template__message").text());
+			}
+			var data = this.model.toJSON();
+			var markup = messageTemplate(data);
+			this.setElement($(markup).get(0));
+		},
+		removeAction: function (e) {
+			console.log('App.MessageView.removeAction');
+			this.$el.remove();
+			this.model.remove();
+		}
+	});
+
+	// ----------------------------------------------------------------------
+
 	socket.on('event:recorders', function (data) {
 	//	console.log(data);
-		var ddClass = 'message';
+		var type = 'message';
 
 		if (data.error) {
-			ddClass = 'error';
+			type = 'error';
 		}
 
-		var text = data[ddClass];
-		var model = App.main.recorders.get(data.recorder.id);
+		var text = data[type];
 
+		/*
+		var model = App.main.recorders.get(data.recorder.id);
 		model.addMessage({
 			createdAt: data.createdAt,
 			message: text
+		});
+		*/
+console.log(data);
+		App.main.messages.add({
+			type: type,
+			timestamp: data.createdAt,
+			text: text
 		});
 
 	});

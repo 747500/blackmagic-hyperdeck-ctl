@@ -12,9 +12,12 @@ var server = net.createServer({
 	allowHalfOpen: false
 }, function(socket) {
 	var remoteAddress = socket.remoteAddress,
-		remotePort = socket.remotePort;
+		remotePort = socket.remotePort,
+		localAddress = socket.localAddress,
+		localPort = socket.localPort;
 		
-	console.log('client connected %s:%s',
+	console.log('%s:%s connected %s:%s',
+			localAddress, localPort,
 			remoteAddress, remotePort);
 
 	socket.on('error', function (err) {
@@ -22,7 +25,8 @@ var server = net.createServer({
 	});
 
 	socket.on('close', function () {
-		console.log('client disconnected %s:%s',
+		console.log('%s:%s disconnected %s:%s',
+				localAddress, localPort,
 				remoteAddress, remotePort);
 	});
 
@@ -71,6 +75,27 @@ var server = net.createServer({
 			return;
 		}
 
+		if (line.match(/^stop/)) {
+			socket.write('200 ok\n');
+			socket.end();
+			socket.destroy();
+			return;
+		}
+
+		if (line.match(/^record/)) {
+			socket.write('200 ok\n');
+			socket.end();
+			socket.destroy();
+			return;
+		}
+
+		if (line.match(/^play/)) {
+			socket.write('200 ok\n');
+			socket.end();
+			socket.destroy();
+			return;
+		}
+
 		if (line.match(/^device info/)) {
 			socket.write(
 				'204 device info:\n' +
@@ -86,7 +111,7 @@ var server = net.createServer({
 	});
 });
 
-var address = '127.0.0.1';
+var address = '0.0.0.0';
 var port = 9993;
 
 server.listen(port, address, function (err) {

@@ -12,8 +12,17 @@ var tcp = require('./tcp.js');
 
 var db = low('db.json');
 
-db('recorders').value().map(function (recorder) {
-	tcp.memberConnect(recorder);
+db('recorders').value().map(function (deck) {
+	process.send({
+		type: 'HyperDeck:add',
+		data: _(deck).pick(
+			'id',
+			'name',
+			'host',
+			'port',
+			'disabled'
+		)
+	});
 });
 
 module.exports = function (app, io) {
@@ -45,6 +54,11 @@ module.exports = function (app, io) {
 		})
 
 		// ------------------------------------------------------------------
+
+		socket.on('read:messages', function (data, reply) {
+			console.log('read:messages');
+			reply([]);
+		});
 
 		socket.on('read:recorders', function (data, reply) {
 			reply(db('recorders').value());

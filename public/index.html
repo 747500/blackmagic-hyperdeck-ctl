@@ -34,45 +34,80 @@
 
         <div class="layout">
 
+			<div class="hr"></div>
+
 			<section class="commander">
-				<form>
-					<input type="text" value="" class="command" />
-					<button type="submit">Send</button>
-				</form>
+				<article>
+					<div style="float: left;">
+						<form>
+							<input type="hidden" value="stop" class="command" />
+							<button type="submit">STOP</button>
+						</form>
+					</div>
+					<div style="float: left;">&nbsp;</div>
+					<div style="float: left;">
+						<form>
+							<input type="hidden" value="record" class="command" />
+							<button type="submit">REC</button>
+						</form>
+					</div>
+					<div style="float: left;">&nbsp;</div>
+					<div style="float: left;">
+						<form>
+							<input type="hidden" value="play" class="command" />
+							<button type="submit">PLAY</button>
+						</form>
+					</div>
+					<div style="float: left;">&nbsp;&nbsp;&nbsp;</div>
+					<div style="float: left;">
+						<form>
+							<input type="text" value="" class="command" />
+							<button type="submit">↵</button>
+						</form>
+					</div>
+					<div class="clear">&nbsp;</div>
+				</article>
 			</section>
 
-			<article class="new-recorder">
-				<form>
-					<div>
-						<label>
-							<div>ID</div>
-							<input type="text" readonly="readonly" value="" class="recorder__id" />
-						</label>
-					</div>
-					<div>
-						<label>
-							<div>Name</div>
-							<input type="text" value="" class="recorder__name" />
-						</label>
-					</div>
-					<div>
-						<label>
-							<div>Host</div>
-							<input type="text" value="" class="recorder__host" />
-						</label>
-					</div>
-					<div>
-						<label>
-							<div>Port</div>
-							<input type="text" value="" class="recorder__port" />
-						</label>
-					</div>
-					<div>
-						<button type="submit">Сохранить</button>
-					</div>
-				</form>
-			</article>
 			<div class="hr"></div>
+
+			<section class="recorder-new">
+				<article class="new-recorder">
+					<form>
+						<div>
+							<label>
+								<div>ID</div>
+								<input type="text" readonly="readonly" value="" class="recorder__id" />
+							</label>
+						</div>
+						<div>
+							<label>
+								<div>Name</div>
+								<input type="text" value="" class="recorder__name" />
+							</label>
+						</div>
+						<div>
+							<label>
+								<div>Host</div>
+								<input type="text" value="" class="recorder__host" />
+							</label>
+						</div>
+						<div>
+							<label>
+								<div>Port</div>
+								<input type="text" value="" class="recorder__port" />
+							</label>
+						</div>
+						<br/>
+						<div>
+							<button type="submit">Сохранить</button>
+						</div>
+					</form>
+				</article>
+			</section>
+
+			<div class="hr"></div>
+
 			<section class="recorders">
 
 			</section>
@@ -82,7 +117,7 @@
 
 	<script type="text/x-template" id="template__recorder">
 		<article class="recorder" data-recorder-id="<%= id %>">
-			<div class="recorder">
+			<div class="recorder-info">
 				<div class="recorder__data">
 					<div class="recorder__name"><%= name %></div>
 					<span class="recorder__host"><%= host %></span>:<span class="recorder__port"><%= port %></span>
@@ -91,10 +126,20 @@
 					<button class="recorder__action recorder__action_edit">Edit</button>
 					<button class="recorder__action recorder__action_remove">Remove</button>
 				</div>
-				<table class="messages"><tbody></tbody></table>
 			</div>
+			<table class="messages">
+				<tbody>
+				</tbody>
+			</table>
+			<div class="clear">&nbsp;</div>
 		</article>
 	</script>
 
+	<script type="text/x-template" id="template__message">
+		<tr>
+			<td class="message__timestamp"><%= message %></td>
+			<td class="message__text"><%= text %></td>
+		</tr>
+	</script>
 </html>
 
