@@ -43,7 +43,7 @@ function HyperDeckConnector(options) {
 		};
 
 		if (parsed) {
-			result.code = parsed[1];	
+			result.code = parsed[1];
 			result.text = parsed[2];
 		}
 		else {
@@ -84,7 +84,7 @@ function HyperDeckConnector(options) {
 		}
 
 	};
-	
+
 	return new O();
 };
 
