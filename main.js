@@ -38,7 +38,7 @@ pool.on('close', function (params) {
 });
 
 pool.on('notify', function (params) {
-//	console.log('notify %s', JSON.stringify(params, null, 2));
+	console.log('notify %s', JSON.stringify(params, null, 2));
 
 	ui.send({
 		type: 'HyperDeck:notify',
@@ -101,6 +101,17 @@ ui.on('message', function (message) {
 
 	if ('HyperDeck:remove' === message.type) {
 		pool.remove(message.data);
+		return;
+	}
+
+	if ('HyperDeck:command' === message.type) {
+		pool.command(message.data, function (reply) {
+			reply.type = 'message';
+			ui.send({
+				type: 'HyperDeck:notify',
+				data: reply
+			})
+		});
 		return;
 	}
 

@@ -19,6 +19,7 @@ module.exports = function (app, io) {
 	});
 
 	model.on('notify', function (message) {
+		console.log('model(notify) >> sockets(deck:message)', message);
 		io.sockets.emit('deck:message', message);
 	});
 
@@ -43,6 +44,10 @@ module.exports = function (app, io) {
 
 		_(model.messages).forEach(function (message) {
 			socket.emit('deck:message', message);
+		});
+
+		socket.on('deck:command', function (cmd) {
+			model.sendCommand(cmd);		
 		});
 
 		socket.on('disconnect', function () {

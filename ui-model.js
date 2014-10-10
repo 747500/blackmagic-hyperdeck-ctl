@@ -26,6 +26,12 @@ Model.prototype.messagesExpire = function () {
 		this.messages.shift();
 	}
 };
+Model.prototype.sendCommand = function (cmd) {
+	process.send({
+		type: 'HyperDeck:command',
+		data: cmd
+	});
+};
 
 var model = new Model();
 

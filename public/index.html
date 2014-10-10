@@ -62,31 +62,37 @@
 
 			<div class="row">
 				<div class="col-md-4">
-<div class="panel panel-default">
-	<div class="panel-heading">
-		Controls
-	</div>
-	<ul class="list-group">
-		<li class="list-group-item">
-		<div class="btn-group">
-			<button type="button" class="btn btn-lg">
-				<span class="glyphicon glyphicon-stop"></span>
-			</button>
-			<button type="button" class="btn btn-lg btn-danger">
-				<span class="glyphicon glyphicon-record"></span>
-			</button>
-		</div>
-		</li>
-		<li class="list-group-item">
-		<div class="input-group">
-			<input type="text" class="form-control">
-			<span class="input-group-btn">
-				<button class="btn btn-default" type="button">↵</button>
-			</span>
-		</div>
-		</li>
-	</ul>
-</div>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							Controls
+						</div>
+						<ul class="list-group">
+							<li class="list-group-item">
+								<form class="btn-group deck-control">
+									<button type="submit" class="btn btn-sm btn-danger">
+										<span class="glyphicon glyphicon-record"></span>
+										Record
+									</button>
+									<button type="submit" class="btn btn-sm">
+										<span class="glyphicon glyphicon-pause"></span>
+										Pause
+									</button>
+									<button type="submit" class="btn btn-sm">
+										<span class="glyphicon glyphicon-stop"></span>
+										Stop
+									</button>
+								</form>
+							</li>
+							<li class="list-group-item">
+								<form class="input-group deck-command">
+									<input type="text" class="form-control">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="submit">↵</button>
+									</span>
+								</form>
+							</li>
+						</ul>
+					</div>
 
 					<div class="panel panel-default">
 						<div class="panel-heading">

@@ -69,6 +69,26 @@ $(function () {
 
 // --------------------------------------------------------------------------
 
+	var $cmdForm = $('form.deck-command');
+	
+	$cmdForm.submit(function (event) {
+		var cmd = $('input', $cmdForm).val();
+		console.log(cmd);
+		socket.emit('deck:command', cmd);
+		return false;
+	});
+
+	var $ctlForm = $('form.deck-control button');
+
+	$ctlForm.click(function (event) {
+		var cmd = $(this).text().toLowerCase().replace(/\s+/g, '');
+		console.log(cmd);
+		socket.emit('deck:command', cmd);
+		return false;
+	});
+
+// --------------------------------------------------------------------------
+
 	var socket = io.connect();
 
 	socket.on('disconnect', function () {
