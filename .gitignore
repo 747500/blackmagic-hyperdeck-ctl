@@ -29,5 +29,8 @@ node_modules
 
 *~
 
+.kateproject
+.kateproject.d
+
 db.json
 
