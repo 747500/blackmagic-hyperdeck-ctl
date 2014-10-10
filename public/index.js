@@ -87,6 +87,15 @@ $(function () {
 		return false;
 	});
 
+	$('.deck-cmd-remote').change(function (event) {
+		console.log(event.currentTarget.checked);
+		if (event.currentTarget.checked) {
+			socket.emit('deck:command', 'remote: enable: true');
+		}
+		else {
+			socket.emit('deck:command', 'remote: enable: false');
+		}
+	});
 // --------------------------------------------------------------------------
 
 	var socket = io.connect();
