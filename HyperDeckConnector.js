@@ -4,6 +4,7 @@
 var util = require('util');
 
 var net = require('net');
+var uuid = require('uuid');
 var readline = require('readline');
 var _ = require('underscore');
 
@@ -38,6 +39,8 @@ function HyperDeckConnector(options) {
 		var parsed = text.match(/^(\d+)\s+([^]*)$/);
 
 		var result = {
+			id: uuid(),
+			timestamp: new Date(),
 			code: '000',
 			text: ''
 		};

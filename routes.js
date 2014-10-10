@@ -6,24 +6,8 @@ var fs = require('fs');
 
 var _ = require('underscore');
 var uuid = require('uuid');
-var low = require('lowdb');
 
-var tcp = require('./tcp.js');
-
-var db = low('db.json');
-
-db('recorders').value().map(function (deck) {
-	process.send({
-		type: 'HyperDeck:add',
-		data: _(deck).pick(
-			'id',
-			'name',
-			'host',
-			'port',
-			'disabled'
-		)
-	});
-});
+var model = require('./ui-model.js');
 
 module.exports = function (app, io) {
 
@@ -34,78 +18,72 @@ module.exports = function (app, io) {
 		});
 	});
 
+	model.on('notify', function (message) {
+		io.sockets.emit('deck:message', message);
+	});
+
+	model.on('close', function (deck) {
+		io.sockets.emit('deck:disconnect', deck);	
+	});
+
+	model.on('open', function (deck) {
+		io.sockets.emit('deck:connect', deck);	
+	});
+
 	io.on('connection', function (socket) {
 
-		console.log('socket.io: new socket');
+		console.log('socket.io: client connected');
 
-		function messageForwarder(data) {
-			socket.emit('event:recorders', data);
-		}
+		console.log('Decks loaded: %s', _(model.table).keys().length);
 
-		tcp.on('event:recorders', messageForwarder);
+		_(model.table).keys().forEach(function (k) {
+			var deck = model.table[k];
+			socket.emit('deck:create', deck);
+		});
+
+		_(model.messages).forEach(function (message) {
+			socket.emit('deck:message', message);
+		});
 
 		socket.on('disconnect', function () {
-			tcp.removeListener('event:recorders', messageForwarder);
-			console.log('socket.io: socket disconnect');
+			console.log('socket.io: client disconnected');
 		});
 
 		socket.on('error', function (err) {
-			consoe.log('socket.io: socket error:\n%s\n', err.stack || err);
-		})
+			console.log('socket.io: failed with: %s\n', err.stack || err);
+		});
 
 		// ------------------------------------------------------------------
 
 		socket.on('read:messages', function (data, reply) {
-			console.log('read:messages');
-			reply([]);
+			console.log('client tries to get messages...');
+			reply(model.messages);
 		});
 
 		socket.on('read:recorders', function (data, reply) {
-			reply(db('recorders').value());
+			console.log('client tries to get all recorders...');
+			reply(model.table);
 		});
 
 		socket.on('update:recorders', function (data, reply) {
-			var recorder = db('recorders').find({ id: data.id });
-
-			if (!recorder) {
-				console.log('recorder not found:\n%s\n', data);
-				return;
-			}
-
-			recorder.assign(data);
-			db.save();
-			tcp.memberDisconnect(data);
-			tcp.memberConnect(data);
-
-			reply(recorder.value());
+			console.log('client tries to update recorder...');
+			reply(data);
 		});
 
 		socket.on('create:recorders', function (data, reply) {
+			console.log('client tries to create recorder...');
 			data.id = uuid();
-			var recorder = db('recorders').push(data);
-			db.save();
-			tcp.memberConnect(data);
-			reply(recorder.value());
+			reply(data);
 		});
 
 		socket.on('delete:recorders', function (data, reply) {
-			var recorder = db('recorders').find({ id: data.id });
-
-			if (!recorder) {
-				console.log('recorder not found:\n%s\n', data);
-				return;
-			}
-
-			db('recorders').remove({ id: data.id });
-			db.save();
-			tcp.memberDisconnect(data);
-			reply({});	
+			console.log('client tries to delete recorder...');
+			reply(data);
 		});
 
-
 		socket.on('command:recorders', function (data) {
-			console.log('%s', data);
-			tcp.memberCommand(data);		
+			console.log('client tries to send a command to recorder...');
+			reply(data);
 		});
 	});
 

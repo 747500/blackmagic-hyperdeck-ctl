@@ -2,7 +2,7 @@
 "use strict";
 
 var env = process.env.NODE_ENV || 'development';
-var config = require('./config/config')[env];
+var config = require('../config/config')[env];
 
 var util = require('util');
 var net = require('net');

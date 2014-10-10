@@ -1,330 +1,105 @@
 
 "use strict";
 
-var App = {};
-
 $(function () {
+
+	console.log('blah');
+
+	$('#ThemeSelect a').click(function (event) {
+		var $el = $(event.currentTarget);
+		var $parent = $el.parent();
+		var themeName = $el.text().toLowerCase();
+
+		$parent.siblings().removeClass('active');
+		$parent.addClass('active');
+
+		var $navbar = $('div.navbar');
+
+		switch(themeName) {
+		case 'inverse':
+			$navbar.removeClass('navbar-default').addClass('navbar-inverse');
+			break;
+		default:
+			$navbar.addClass('navbar-default').removeClass('navbar-inverse');
+			break;
+		}
+
+		return false;
+	});
+
+// --------------------------------------------------------------------------
+
+	var deckById = {};
+
+	var Recorder = function(options) {
+		this.name = options.name;
+		this.host = options.host;
+		this.port = options.port;
+		this.disabled = options.disabled;
+		this.socket = function () {
+			return this.host + ':' + this.port;
+		};
+	};
+
+	var Message = function (options) {
+		this.data = options;
+		this.message = function () {
+			return JSON.stringify(this.data, null, 2);
+		};
+		this.timestamp = function () {
+			return this.data.message.timestamp;
+		};
+		this.code = function () {
+			return this.data.message.code;
+		};
+		this.text = function () {
+			return this.data.message.text.replace(/(\n)/g, '<br/>');
+		};
+		this.deckName = function () {
+			return deckById[this.data.deckId].name;		
+		};
+	};
+
+	var viewModel = {
+		recorders: ko.observableArray(),
+		messages: ko.observableArray()
+	};
+
+	ko.applyBindings(viewModel);
+
+// --------------------------------------------------------------------------
 
 	var socket = io.connect();
 
-	var bbsync = Backbone.sync;
-
-	Backbone.sync = function(method, model, options) {
-		var evName, evData;
-
-		if ('read' === method) {
-			evName = method + ':' + model.url;
-			evData = {};
-		}
-		else {
-			evName = method + ':' + model.collection.url;
-			evData = model.attributes;
-		}
-
-		socket.emit(evName, evData, options.success);
-
-	//	console.log(method);
-	//	console.log(model);
-	//	console.log(options);
-	};
-
-	App.main = {
-		recorders: function () {},
-		messages: function () {},
-		init: function () {
-			console.log('App.main.init');
-
-			this.recorders = new App.RecorderCollection();
-			this.messages = new App.MessageCollection();
-
-			this.initEvents();
-			this.initRoutes();
-		},
-
-		//инициализируем DOM события jquery
-		initEvents: function () {
-			console.log('App.main.initEvents');
-			var self = this;
-
-			$(document).on("submit", ".commander form", function (e) {
-				e.preventDefault();
-				var command = $(this).find('.command').val();
-				socket.emit('command:recorders', command);
-			});
-
-			$(document).on("submit", ".new-recorder form", function (e) {
-				e.preventDefault();
-				var $this = $(this);
-				var recorderId = $this.find('.recorder__id').val();
-				var model = self.recorders.find({ id: recorderId });
-
-				if (!model) {
-					model = self.recorders.add({
-						id: null,
-						name: $this.find('.recorder__name').val(),
-						host: $this.find('.recorder__host').val(),
-						port: (parseInt($this.find('.recorder__port').val(), 10) || 9993).toString()
-					});
-				}
-				else {
-					model.set({
-						name: $this.find('.recorder__name').val(),
-						host: $this.find('.recorder__host').val(),
-						port: (parseInt($this.find('.recorder__port').val(), 10) || 9993).toString()
-					});
-				}
-
-				model.save();
-
-				$this.find('.recorder__id').val(null);
-				$this.find('.recorder__name').val('');
-				$this.find('.recorder__host').val('');
-				$this.find('.recorder__port').val('');
-
-//				$this.hide();
-			});
-		},
-
-		initRoutes: function () {
-			console.log('App.main.initRoutes');
-			App.Router = Backbone.Router.extend({
-				routes: {
-					'': 'index',
-					'recorder/:id': 'getRecorder',
-					'recorder/:id/edit': 'editRecorder',
-					'*default': 'default'
-				},
-				index: function () {
-					console.log('index route');
-				},
-				getRecorder: function (id) {
-					console.log('get recorder with id: %s', id);
-				},
-				editRecorder: function (id) {
-					console.log('edit recorder with id: %s', id);
-				},
-				default: function (route) {
-					console.log('undefined route (404): %s', route);
-				}
-			});
-			new App.Router();
-			Backbone.history.start();
-		}
-	}
-
-	// ----------------------------------------------------------------------
-
-	App.Recorder = Backbone.Model.extend({
-		setName: function (name) {
-			console.log('App.Recorder.setName');
-			this.set("name", name);
-		},
-		setHost: function (host) {
-			console.log('App.Recorder.setost');
-			this.set("host", host);
-		},
-		remove: function () {
-			console.log('App.Recorder.remove');
-			this.destroy()
-		},
-		addMessage: function (data) {
-			var text = data.createdAt.toString() +
-					' ' + (data.error || data.message || '');
-			this.set('message', text);
-		}
+	socket.on('disconnect', function () {
+		console.log(
+			viewModel.messages()
+		);
 	});
 
-	App.RecorderCollection = Backbone.Collection.extend({
-		model: App.Recorder,
-		url: "recorders",
-		initialize: function () {
-			console.log('App.RecorderCollection.initialize');
-			this.initEvents();
-			this.fetch();
-		},
-		initEvents: function () {
-			console.log('App.RecorderCollection.initEvents');
-			this.on("add", this.listenAdd);
-		},
-		listenAdd: function (model) {
-			console.log('App.RecorderCollection.listenAdd');
-			var view = new App.RecorderView({
-				model: model
-			});
-			view.render();
-			$(".recorders").append(view.$el);
-		}
+	socket.on('deck:create', function (deck) {
+		console.log('deck: ', deck);
+		deckById[deck.id] = deck;
+		viewModel.recorders.push(new Recorder(deck));
 	});
 
-	var recorderTemplate = false;
-	App.RecorderView = Backbone.View.extend({
-		events: {
-			"click .recorder__action_remove": "removeAction"
-		},
-		initialize: function () {
-			var self = this;
-			console.log('App.RecorderView.initialize');
-			
-			this.model.on('change', function (model, options) {
-				_(model.changed).keys().forEach(function (k) {
+	socket.on('deck:connect', function (deck) {
+		console.log('connected: ', deck);
+	});
 
-					if ('id' === k) {
-						self.$el.data('recorder-id', model.changed[k]);
-						return;
-					}
+	socket.on('deck:disconnect', function (deck) {
+		console.log('disconnected: ', deck);
+	});
 
-					if ('message' === k) {
-						self.$el.find('.messages tbody').prepend(
-							'<tr><td><pre>' + model.changed[k] + '</pre></td><tr>'
-						);
-						return;
-					}
-
-					self.$el.find('.recorder__' + k).text(model.changed[k]);
-				});
-			});
-		},
-		render: function () {
-			console.log('App.RecorderView.render');
-			if(!recorderTemplate) {
-				recorderTemplate = _.template($("#template__recorder").text());
+	socket.on('deck:message', function (data) {
+		if ('message' === data.type) {
+			viewModel.messages.unshift(new Message(data));
+			while (viewModel.messages().length > 10) {
+				viewModel.messages.pop();
 			}
-			var data = this.model.toJSON();
-			var markup = recorderTemplate(data);
-			this.setElement($(markup).get(0));
-			this.initControls();
-		},
-		initControls: function () {
-			console.log('App.RecorderView.initControls');
-			var self = this;
-			this.$el.find(".recorder__action_edit").on("click", function (e) {
-				e.preventDefault();
-				var $editForm = $('.new-recorder form');
-
-				$editForm.find('.recorder__id').val(self.$el.data('recorder-id'));
-				$editForm.find('.recorder__name').val(self.$el.find(".recorder__name").text());
-				$editForm.find('.recorder__host').val(self.$el.find(".recorder__host").text());
-				$editForm.find('.recorder__port').val(self.$el.find(".recorder__port").text());
-//				$editForm.show();
-			});
-		},
-		removeAction: function (e) {
-			console.log('App.RecorderView.removeAction');
-			this.$el.remove();
-			this.model.remove();
 		}
+	//	console.log('message: ', message);
 	});
-
-	// ----------------------------------------------------------------------
-
-	App.Message = Backbone.Model.extend({
-		setTimestamp: function (data) {
-			this.set('timestamp', data);
-		},
-		setText: function (data) {
-			this.set('text', data);
-		},
-		setType: function (data) {
-			this.set('type', data);
-		},
-		remove: function () {
-			console.log('App.Message.remove');
-			this.destroy()
-		}
-	});
-
-	App.MessageCollection = Backbone.Collection.extend({
-		model: App.Message,
-		url: 'messages',
-		initialize: function () {
-			console.log('App.MessageCollection.initialize');
-			this.fetch();
-		},
-		listenAdd: function (model) {
-			console.log('App.MessageCollection.listenAdd');
-			var view = new App.MessageView({
-				model: model
-			});
-			view.render();
-			$('.messages').append(view.$el);
-		}
-	});
-
-	var messageTemplate = false;
-	App.MessageView = Backbone.View.extend({
-		events: {
-//			"click .recorder__action_remove": "removeAction"
-		},
-		initialize: function () {
-			var self = this;
-			console.log('App.MessageView.initialize');
-			
-			this.model.on('change', function (model, options) {
-				_(model.changed).keys().forEach(function (k) {
-					console.log(': %s', k);
-/*
-					if ('id' === k) {
-						self.$el.data('recorder-id', model.changed[k]);
-						return;
-					}
-
-					if ('message' === k) {
-						self.$el.find('.messages tbody').prepend(
-							'<tr><td><pre>' + model.changed[k] + '</pre></td><tr>'
-						);
-						return;
-					}
-
-					self.$el.find('.recorder__' + k).text(model.changed[k]);
-*/
-				});
-			});
-		},
-		render: function () {
-			console.log('App.MessageView.render');
-			if(!recorderTemplate) {
-				recorderTemplate = _.template($("#template__message").text());
-			}
-			var data = this.model.toJSON();
-			var markup = messageTemplate(data);
-			this.setElement($(markup).get(0));
-		},
-		removeAction: function (e) {
-			console.log('App.MessageView.removeAction');
-			this.$el.remove();
-			this.model.remove();
-		}
-	});
-
-	// ----------------------------------------------------------------------
-
-	socket.on('event:recorders', function (data) {
-	//	console.log(data);
-		var type = 'message';
-
-		if (data.error) {
-			type = 'error';
-		}
-
-		var text = data[type];
-
-		/*
-		var model = App.main.recorders.get(data.recorder.id);
-		model.addMessage({
-			createdAt: data.createdAt,
-			message: text
-		});
-		*/
-console.log(data);
-		App.main.messages.add({
-			type: type,
-			timestamp: data.createdAt,
-			text: text
-		});
-
-	});
-
-	App.main.init();
 
 });
 

@@ -1,78 +1,78 @@
 
 "use strict";
 
+var util = require('util');
+var events = require('events');
+var fs = require('fs');
+
+var _ = require('underscore');
+var uuid = require('uuid');
+var low = require('lowdb');
+
 process.on('disconnect', function () {
 	process.exit(0);
 });
 
-var stateTable = {};
+function Model() {
+	this.table = {};
 
-var items = [
-	{
-		id: '1',
-		name: 'Cam1',
-		host: '127.0.0.1',
-		port: 9993
-	},
-	{
-		id: '2',
-		name: 'Cam2',
-		host: '127.0.0.2',
-		port: 9993
-	},
-	{
-		id: '3',
-		name: 'Cam3',
-		host: '127.0.0.3',
-		port: 9993
-	},
-	{
-		id: '4',
-		name: 'Cam4',
-		host: '127.0.0.4',
-		port: 9993
-	},
-	{
-		id: '5',
-		name: 'Cam5',
-		host: '127.0.0.5',
-		port: 9993,
-		disabled: true
-	},
-	{
-		id: '6',
-		name: 'Cam6',
-		host: '127.0.0.6',
-		port: 9993,
-		disabled: true
+	this.messagesMax = 10;
+	this.messages = [];
+}
+
+Model.prototype = new events.EventEmitter();
+Model.prototype.messagesExpire = function () {
+	while (this.messages.length > this.messagesMax) {
+		this.messages.shift();
 	}
-];
+};
 
-items.forEach(function (item) {
+var model = new Model();
+
+var db = low('db.json');
+
+//
+// Init parent - HyperDeck tcp pool
+//
+db('recorders').value().map(function (deck) {
 	process.send({
 		type: 'HyperDeck:add',
-		data: item
+		data: _(deck).pick(
+			'id',
+			'name',
+			'host',
+			'port',
+			'disabled'
+		)
 	});
 });
 
-console.log('ui started');
-
 process.on('message', function (message) {
 
-	var deck = message.data;
+	var deck = _(message.data).pick(
+		'id',
+		'name',
+		'host',
+		'port',
+		'disabled'
+	);
 
 	if ('HyperDeck:add' === message.type) {
-		stateTable[deck.id]	= deck;
 		deck.connected = false;
+		model.table[deck.id] = deck;
+		model.emit('add', deck);
 		return;
 	}
 
 	if ('HyperDeck:notify' === message.type) {
 		console.log('-');
+		model.messages.push(message.data);
+		model.messagesExpire();
+		model.emit('notify', message.data);
 		return;
 	}
 
-	deck = stateTable[deck.id];
+	deck = model.table[deck.id];
 
 	if ('object' !== typeof deck) {
 		console.error('Unexpected deck for message:\n%s\n',
@@ -82,29 +82,34 @@ process.on('message', function (message) {
 
 	if ('HyperDeck:open' === message.type) {
 		deck.connected = true;
+		model.emit('open', deck);
 		return;
 	}
 
 	if ('HyperDeck:close' === message.type) {
 		deck.connected = false;
+		model.emit('close', deck);
 		return;
 	}
 
 	if ('HyperDeck:remove' === message.type) {
-		delete stateTable[deck.id];
+		delete model.table[deck.id];
+		model.emit('remove', deck);
 		return;
 	}
 
-	console.log('UI: Unexpected message: %s\n', JSON.stringify(message, null, 2));
+	console.log('UI: Unexpected message: %s\n',
+			JSON.stringify(message, null, 2));
 
 });
 
 process.on('exit', function () {
-	console.log(stateTable);
+	db.save();
 });
 
 process.on('SIGINT', function () {
-//	console.log(stateTable);
 	process.exit(0);
 });
+
+module.exports = model;
 
