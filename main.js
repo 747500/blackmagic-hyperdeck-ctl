@@ -12,7 +12,6 @@ var uuid = require('uuid');
 
 var HyperDeckPool = require('./HyperDeckPool.js');
 
-
 // -----------------------------------------------------------------------
 
 var pool = new HyperDeckPool();
@@ -21,10 +20,10 @@ var ui = child_process.fork('./ui.js');
 
 pool.on('open', function (params) {
 //	console.log('open   %j', params);
-	
+
 	ui.send({
 		type: 'HyperDeck:open',
-		data: params	
+		data: params
 	});
 });
 
@@ -33,7 +32,7 @@ pool.on('close', function (params) {
 
 	ui.send({
 		type: 'HyperDeck:close',
-		data: params	
+		data: params
 	});
 });
 
@@ -42,7 +41,7 @@ pool.on('notify', function (params) {
 
 	ui.send({
 		type: 'HyperDeck:notify',
-		data: params	
+		data: params
 	});
 });
 
@@ -51,7 +50,7 @@ pool.on('add', function (params) {
 
 	ui.send({
 		type: 'HyperDeck:add',
-		data: params	
+		data: params
 	});
 });
 
@@ -60,7 +59,7 @@ pool.on('update', function (params) {
 
 	ui.send({
 		type: 'HyperDeck:update',
-		data: params	
+		data: params
 	});
 });
 
@@ -69,7 +68,7 @@ pool.on('remove', function (params) {
 
 	ui.send({
 		type: 'HyperDeck:remove',
-		data: params	
+		data: params
 	});
 });
 

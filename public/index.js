@@ -1,9 +1,23 @@
 
 "use strict";
 
-$(function () {
+ko.bindingHandlers.switch = {
+	init: function (element, valueAccessor) {
+		$(element).bootstrapSwitch({
+			size: 'mini',
+			onColor: 'success',
+			offColor: 'warning'
+		});
+	}
+};
 
-	console.log('blah');
+var App = {
+	deckSchema: [
+		'id', 'name', 'host', 'port', 'disabled'
+	]
+};
+
+$(function () {
 
 	$('#ThemeSelect a').click(function (event) {
 		var $el = $(event.currentTarget);
@@ -32,12 +46,15 @@ $(function () {
 	var deckById = {};
 
 	var Recorder = function(options) {
-		this.name = options.name;
-		this.host = options.host;
-		this.port = options.port;
-		this.disabled = options.disabled;
+		this.id = options.id;
+		this.name = ko.observable(options.name);
+		this.host = ko.observable(options.host);
+		this.port = ko.observable(options.port);
+		this.disabled = ko.observable(options.disabled || false);
+		this.connected = ko.observable(options.connected || false);
+
 		this.socket = function () {
-			return this.host + ':' + this.port;
+			return this.host() + ':' + this.port();
 		};
 	};
 
@@ -56,7 +73,7 @@ $(function () {
 			return this.data.message.text.replace(/(\n)/g, '<br/>');
 		};
 		this.deckName = function () {
-			return deckById[this.data.deckId].name;		
+			return deckById[this.data.deckId].name;
 		};
 	};
 
@@ -67,10 +84,35 @@ $(function () {
 
 	ko.applyBindings(viewModel);
 
-// --------------------------------------------------------------------------
+	// ----------------------------------------------------------------------
+
+	$('.able-view-switch button').click(function (event) {
+		var viewType = $(event.target).data('able-view');
+		var $view = $('.able-view-content');
+
+		switch (viewType) {
+			case 'list':
+				$view.removeClass('able-view-grid').addClass('able-view-list');
+				break;
+			case 'grid':
+				$view.removeClass('able-view-list').addClass('able-view-grid');
+				break;
+		}
+	});
+
+	// ----------------------------------------------------------------------
+
+
+	App.deckDisable = function (model, event) {
+		socket.emit('deck:update', {
+			id: model.id,
+			disabled: !event.currentTarget.checked
+		});
+		return true;
+	};
 
 	var $cmdForm = $('form.deck-command');
-	
+
 	$cmdForm.submit(function (event) {
 		var cmd = $('input', $cmdForm).val();
 		console.log(cmd);
@@ -101,23 +143,27 @@ $(function () {
 	var socket = io.connect();
 
 	socket.on('disconnect', function () {
-		console.log(
-			viewModel.messages()
-		);
+		viewModel.recorders([]);
+		viewModel.messages([]);
 	});
 
 	socket.on('deck:create', function (deck) {
-		console.log('deck: ', deck);
-		deckById[deck.id] = deck;
-		viewModel.recorders.push(new Recorder(deck));
+		deckById[deck.id] = new Recorder(deck);
+		viewModel.recorders.push(deckById[deck.id]);
 	});
 
-	socket.on('deck:connect', function (deck) {
-		console.log('connected: ', deck);
-	});
+	socket.on('deck:update', function (data) {
+		var deck = deckById[data.id];
 
-	socket.on('deck:disconnect', function (deck) {
-		console.log('disconnected: ', deck);
+		_(data).keys().forEach(function (k) {
+			if ('function' !== typeof deck[k]) {
+				return; // is not observable
+			}
+			if (data[k] === deck[k]()) {
+				return; // is not changed
+			}
+			deck[k](data[k]);
+		});
 	});
 
 	socket.on('deck:message', function (data) {
@@ -131,4 +177,3 @@ $(function () {
 	});
 
 });
-

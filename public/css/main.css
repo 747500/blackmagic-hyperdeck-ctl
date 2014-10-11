@@ -1,153 +1,14 @@
-/*
- * HTML5 Boilerplate
- *
- * What follows is the result of much research on cross-browser styling.
- * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
- * Kroc Camen, and the H5BP dev community and team.
- */
-
-/* ==========================================================================
-   Base styles: opinionated defaults
-   ========================================================================== */
-
-html,
-button,
-input,
-select,
-textarea {
-    color: #222;
-}
-
-body {
-    font-size: 1em;
-    line-height: 1.4;
-}
-
-/*
- * Remove text-shadow in selection highlight: h5bp.com/i
- * These selection rule sets have to be separate.
- * Customize the background color to match your design.
- */
-
-::-moz-selection {
-    background: #b3d4fc;
-    text-shadow: none;
-}
-
-::selection {
-    background: #b3d4fc;
-    text-shadow: none;
-}
-
-/*
- * A better looking default horizontal rule
- */
-
-hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 1em 0;
-    padding: 0;
-}
-
-/*
- * Remove the gap between images and the bottom of their containers: h5bp.com/i/440
- */
-
-img {
-    vertical-align: middle;
-}
-
-/*
- * Remove default fieldset styles.
- */
-
-fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-}
-
-/*
- * Allow only vertical resizing of textareas.
- */
-
-textarea {
-    resize: vertical;
-}
-
-/* ==========================================================================
-   Chrome Frame prompt
-   ========================================================================== */
-
-.chromeframe {
-    margin: 0.2em 0;
-    background: #ccc;
-    color: #000;
-    padding: 0.2em 0;
-}
 
 
-/* mine */
-
-html {
-	background-color: #484c4f;
-	color: #eeeeee;
-}
-
-header, section {
-	margin: 1em 1em;
-}
-
-article {
-	margin: .5em 0;
-	padding: .5em 1em;
-	background-color: #323535;
-	border-radius: .5em;
-}
-
-div.hr {
-	background-color: #ccc;
+ul.grid-view {
 	margin: 0;
 	padding: 0;
-	height: 1px;
 }
 
-.recorder-info {
-	float: left;
-	height: 7em;
-}
-
-.messages {
-	float: left;
-	margin: 0 1em;
-}
-
-.messages tbody {
-	float: left;
-	height: 7em;
-	width: 70em;
-	overflow-y: scroll;
-	overflow-x: auto;
-	background-color: #ffe;
-	color: #333;
-}
-
-tr {
-	text-align: left;
-	vertical-align: top;
-}
-
-.messages .error {
-	color: #811;
-}
-
-.messages pre {
+ul.grid-view li {
 	margin: 0;
+	padding: 0;
 }
-
 
 .clear {
 	clear: both;
@@ -155,4 +16,23 @@ tr {
 	overflow: hidden;
 }
 
+div.able-view-list {
+	display:table;
+	width: 100%;
+}
 
+div.able-view-list>div {
+	display: table-row;
+	margin: .25em .5em;
+}
+
+div.able-view-list>div>div {
+	display: table-cell;
+	margin: .25em .5em;
+	padding: .25em .5em;
+}
+
+div.able-view-grid>div {
+	width: 33.33%;
+	float: left;
+}

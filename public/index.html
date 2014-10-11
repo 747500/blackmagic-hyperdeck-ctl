@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
@@ -8,7 +9,10 @@
 
 		<!-- Bootstrap -->
 		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-switch.min.css" rel="stylesheet">
 		<link href="css/navbar-fixed-top.css" rel="stylesheet">
+
+		<link href="css/main.css" rel="stylesheet">
 
 		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,9 +23,10 @@
 
 		<script src="js/underscore.js"></script>
 		<script src="js/jquery.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/knockout-3.2.0.js"></script>
 		<script src="js/jquery.cookie.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/bootstrap-switch.min.js"></script>
+		<script src="js/knockout-3.2.0.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 
 		<script src="/index.js"></script>
@@ -61,7 +66,7 @@
 		<div class="container" role="main">
 
 			<div class="row">
-				<div class="col-md-4">
+				<div class="col-md-6">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							Controls
@@ -105,59 +110,52 @@
 							Recorders <span class="badge pull-right"><span data-bind="text: recorders().length"></span></span>
 						</div>
 						<div class="panel-body">
-						<div class="btn-toolbar" role="toolbar">
-							<div class="btn-group pull-right">
-								<button type="button" class="btn btn-default">
-									<span class="glyphicon glyphicon-th-list"></span>
-								</button>
-
-								<button type="button" class="btn btn-default">
-									<span class="glyphicon glyphicon-th"></span>
-								</button>
-
-								<button type="button" class="btn btn-default">
-									<span class="glyphicon glyphicon-th-large"></span>
-								</button>
+							<div class="btn-toolbar" role="toolbar">
+								<div class="able-view-switch btn-group pull-right">
+									<button type="button" class="btn btn-sm" data-able-view="list">
+										<span class="glyphicon glyphicon-th-list"></span>
+									</button>
+									<button type="button" class="btn btn-sm" data-able-view="grid">
+										<span class="glyphicon glyphicon-th-large"></span>
+									</button>
+								</div>
 							</div>
 						</div>
+						<div class="list-group able-view-content" data-bind="foreach: recorders">
+							<div class="list-group-item able-view-item">
+								<div>
+									<span data-bind="text: name()"></span>
+								</div>
+								<div>
+									<span data-bind="text: socket()"></span>
+								</div>
+								<div>
+									<span class="label label-danger">
+										<span class="glyphicon glyphicon-warning-sign"></span>
+									</span>
+									<span class="label label-success" data-bind="visible: connected()">
+										<span class="glyphicon glyphicon-ok"></span>
+									</span>
+									<span class="label label-default" data-bind="visible: !connected()">
+										<span class="glyphicon glyphicon-remove"></span>
+									</span>
+								</div>
+								<div>
+									<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
+									<button class="btn btn-xs" href="#" role="button">
+										<span class="glyphicon glyphicon-wrench"></span>
+									</button>
+									<button class="btn btn-xs" href="#" role="button">
+										<span class="glyphicon glyphicon-trash"></span>
+									</button>
+								</div>
+							</div>
 						</div>
-						<ul class="list-group" data-bind="foreach: recorders">
-							<li class="list-group-item">
-								<ul>
-									<li><span data-bind="text: name"></span></li>
-									<li><span data-bind="text: socket()"></span></li>
-									<li>
-										<span class="label label-danger">
-											<span class="glyphicon glyphicon-warning-sign"></span>
-										</span>
-										<span class="label label-success">
-											<span class="glyphicon glyphicon-ok"></span>
-										</span>
-										<span class="label label-default">
-											<span class="glyphicon glyphicon-ok"></span>
-										</span>
-									</li>
-									<li>
-										<div class="btn-toolbar" role="toolbar">
-											<button class="btn btn-xs" href="#" role="button">
-												<span class="glyphicon glyphicon-off"></span>
-											</button>
-											<button class="btn btn-xs" href="#" role="button">
-												<span class="glyphicon glyphicon-wrench"></span>
-											</button>
-											<button class="btn btn-xs" href="#" role="button">
-												<span class="glyphicon glyphicon-trash"></span>
-											</button>
-										</div>
-									</li>
-								</ul>
-							</li>
-						</ul>
+						<div class="clear">&nbsp;</div>
 					</div>
-
 				</div>
 
-				<div class="col-md-8">
+				<div class="col-md-6">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							Messages

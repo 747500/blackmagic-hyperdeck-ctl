@@ -32,6 +32,12 @@ Model.prototype.sendCommand = function (cmd) {
 		data: cmd
 	});
 };
+Model.prototype.update = function (deck) {
+	process.send({
+		type: 'HyperDeck:update',
+		data: deck
+	});
+};
 
 var model = new Model();
 
@@ -88,13 +94,18 @@ process.on('message', function (message) {
 
 	if ('HyperDeck:open' === message.type) {
 		deck.connected = true;
-		model.emit('open', deck);
+		model.emit('update', deck);
+		return;
+	}
+
+	if ('HyperDeck:update' === message.type) {
+		model.emit('update', deck);
 		return;
 	}
 
 	if ('HyperDeck:close' === message.type) {
 		deck.connected = false;
-		model.emit('close', deck);
+		model.emit('update', deck);
 		return;
 	}
 

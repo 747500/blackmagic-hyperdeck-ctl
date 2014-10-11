@@ -23,12 +23,9 @@ module.exports = function (app, io) {
 		io.sockets.emit('deck:message', message);
 	});
 
-	model.on('close', function (deck) {
-		io.sockets.emit('deck:disconnect', deck);	
-	});
-
-	model.on('open', function (deck) {
-		io.sockets.emit('deck:connect', deck);	
+	model.on('update', function (deck) {
+		io.sockets.emit('deck:update', deck);
+		console.log('UPDATE: %s', deck);
 	});
 
 	io.on('connection', function (socket) {
@@ -47,7 +44,11 @@ module.exports = function (app, io) {
 		});
 
 		socket.on('deck:command', function (cmd) {
-			model.sendCommand(cmd);		
+			model.sendCommand(cmd);
+		});
+
+		socket.on('deck:update', function (deck) {
+			model.update(deck);
 		});
 
 		socket.on('disconnect', function () {
@@ -56,39 +57,6 @@ module.exports = function (app, io) {
 
 		socket.on('error', function (err) {
 			console.log('socket.io: failed with: %s\n', err.stack || err);
-		});
-
-		// ------------------------------------------------------------------
-
-		socket.on('read:messages', function (data, reply) {
-			console.log('client tries to get messages...');
-			reply(model.messages);
-		});
-
-		socket.on('read:recorders', function (data, reply) {
-			console.log('client tries to get all recorders...');
-			reply(model.table);
-		});
-
-		socket.on('update:recorders', function (data, reply) {
-			console.log('client tries to update recorder...');
-			reply(data);
-		});
-
-		socket.on('create:recorders', function (data, reply) {
-			console.log('client tries to create recorder...');
-			data.id = uuid();
-			reply(data);
-		});
-
-		socket.on('delete:recorders', function (data, reply) {
-			console.log('client tries to delete recorder...');
-			reply(data);
-		});
-
-		socket.on('command:recorders', function (data) {
-			console.log('client tries to send a command to recorder...');
-			reply(data);
 		});
 	});
 
