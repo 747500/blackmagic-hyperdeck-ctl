@@ -29,6 +29,8 @@ node_modules
 
 *~
 
+*.kdev4
+.kdev4
 .kateproject
 .kateproject.d
 
