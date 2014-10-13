@@ -35,9 +35,8 @@ HyperDeckPool.prototype.connect = function (params) {
 	});
 
 	params.socket.on('error', function (err) {
-		self.emit('notify', {
-			type: 'error',
-			deckId: params.id,
+		self.emit('fail', {
+			id: params.id,
 			message: err
 		});
 	});

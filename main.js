@@ -37,11 +37,23 @@ pool.on('close', function (params) {
 });
 
 pool.on('notify', function (params) {
-	console.log('notify %s', JSON.stringify(params, null, 2));
+//	console.log('notify %s', JSON.stringify(params, null, 2));
 
 	ui.send({
 		type: 'HyperDeck:notify',
 		data: params
+	});
+});
+
+pool.on('fail', function (deck) {
+	console.log('fail %s', deck);
+
+	ui.send({
+		type: 'HyperDeck:fail',
+		data: {
+			id: deck.id,
+			message: deck.message.toString()
+		}
 	});
 });
 

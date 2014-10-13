@@ -4,9 +4,18 @@
 ko.bindingHandlers.switch = {
 	init: function (element, valueAccessor) {
 		$(element).bootstrapSwitch({
-			size: 'mini',
+			size: 'mini', // mini, small
 			onColor: 'success',
 			offColor: 'warning'
+		});
+	}
+};
+
+ko.bindingHandlers.tablist = {
+	init: function (element, valueAccessor) {
+		$('a.tab-link', element).click(function (event) {
+			event.preventDefault();
+			$(this).tab('show');
 		});
 	}
 };
@@ -19,42 +28,61 @@ var App = {
 
 $(function () {
 
-	$('#ThemeSelect a').click(function (event) {
-		var $el = $(event.currentTarget);
-		var $parent = $el.parent();
-		var themeName = $el.text().toLowerCase();
-
-		$parent.siblings().removeClass('active');
-		$parent.addClass('active');
-
-		var $navbar = $('div.navbar');
-
-		switch(themeName) {
-		case 'inverse':
-			$navbar.removeClass('navbar-default').addClass('navbar-inverse');
-			break;
-		default:
-			$navbar.addClass('navbar-default').removeClass('navbar-inverse');
-			break;
+	var $sortable = $('.sortable');
+	$sortable.sortable({
+		tolerance: "intersect",
+		update: function(event, ui) {
+			$('>div', this).each(function (i, el) {
+				App.deckById[el.id].order(i);
+			});
 		}
-
-		return false;
 	});
+	$sortable.disableSelection();
 
-// --------------------------------------------------------------------------
 
-	var deckById = {};
+	var Connected = function (state) {
+		var self;
+
+		var cc = 'label ';
+		function bindValue() {
+			return cc + (self.state ? 'label-success' : 'label-default');
+		};
+
+		self = function (state) {
+			if (0 < arguments.length) {
+				self.state = state ? true : false;
+				self.binding(bindValue());
+			}
+			return self.state;
+		};
+		self.state = state ? true : false;
+		self.binding = ko.observable(bindValue());
+		return self;
+	};
+
+
+	App.deckById = {};
+	var deckOnline = {};
 
 	var Recorder = function(options) {
+		this.order = ko.observable(0);
+
+		this.connected = new Connected(options.connected);
+
 		this.id = options.id;
 		this.name = ko.observable(options.name);
 		this.host = ko.observable(options.host);
 		this.port = ko.observable(options.port);
 		this.disabled = ko.observable(options.disabled || false);
-		this.connected = ko.observable(options.connected || false);
-
+	//	this.connected = ko.observable(options.connected || false);
+		this.errors = ko.observableArray();
+		this.errorsUnread = ko.observable(false);
+		this.showSettings = ko.observable(false);
 		this.socket = function () {
 			return this.host() + ':' + this.port();
+		};
+		this.toggleSettings = function () {
+			this.showSettings(this.showSettings() ? false : true);
 		};
 	};
 
@@ -73,42 +101,42 @@ $(function () {
 			return this.data.message.text.replace(/(\n)/g, '<br/>');
 		};
 		this.deckName = function () {
-			return deckById[this.data.deckId].name;
+			return App.deckById[this.data.deckId].name;
 		};
 	};
 
-	var viewModel = {
+	App.viewModel = {
 		recorders: ko.observableArray(),
-		messages: ko.observableArray()
+		messages: ko.observableArray(),
+		recordersOnline: ko.observable(0)
 	};
 
-	ko.applyBindings(viewModel);
-
-	// ----------------------------------------------------------------------
-
-	$('.able-view-switch button').click(function (event) {
-		var viewType = $(event.target).data('able-view');
-		var $view = $('.able-view-content');
-
-		switch (viewType) {
-			case 'list':
-				$view.removeClass('able-view-grid').addClass('able-view-list');
-				break;
-			case 'grid':
-				$view.removeClass('able-view-list').addClass('able-view-grid');
-				break;
-		}
+	App.viewModel.recordersSorted = ko.computed(function() {
+		return App.viewModel.recorders().sort(function (left, right) {
+			return left.order() == right.order() ?
+			0 : (left.order() < right.order() ? -1 : 1);
+		});
 	});
 
+	ko.applyBindings(App.viewModel);
+
 	// ----------------------------------------------------------------------
 
-
-	App.deckDisable = function (model, event) {
+	App.deckDisable = function (deck, event) {
 		socket.emit('deck:update', {
-			id: model.id,
+			id: deck.id,
 			disabled: !event.currentTarget.checked
 		});
 		return true;
+	};
+
+	App.deckErrors = function (deck, event) {
+		deck.errorsUnread(false);
+		return true;
+	};
+
+	App.deckSettings = function (deck, event) {
+		deck.toggleSettings();
 	};
 
 	var $cmdForm = $('form.deck-command');
@@ -143,34 +171,53 @@ $(function () {
 	var socket = io.connect();
 
 	socket.on('disconnect', function () {
-		viewModel.recorders([]);
-		viewModel.messages([]);
-	});
-
-	socket.on('deck:create', function (deck) {
-		deckById[deck.id] = new Recorder(deck);
-		viewModel.recorders.push(deckById[deck.id]);
+		App.viewModel.messages([]);
 	});
 
 	socket.on('deck:update', function (data) {
-		var deck = deckById[data.id];
+		var deck = App.deckById[data.id];
 
-		_(data).keys().forEach(function (k) {
-			if ('function' !== typeof deck[k]) {
-				return; // is not observable
+		if ('object' !== typeof deck) {
+			deck = new Recorder(data);
+			App.deckById[deck.id] = deck;
+			App.viewModel.recorders.push(deck);
+
+			if (deck.connected) {
+				App.viewModel.recordersOnline(
+					1 + App.viewModel.recordersOnline()
+				);
 			}
-			if (data[k] === deck[k]()) {
-				return; // is not changed
-			}
-			deck[k](data[k]);
-		});
+		}
+		else {
+			_(data).keys().forEach(function (k) {
+				if ('function' !== typeof deck[k]) {
+					return; // is not observable
+				}
+				if (data[k] === deck[k]()) {
+					return; // is not changed
+				}
+				if ('errors' === k && 0 === data[k].length) {
+					deck.errorsUnread(false);
+				}
+				//console.log('>>>', k, data[k]);
+				deck[k](data[k]);
+			});
+		}
+
+		if (deck.connected.state) {
+			deckOnline[deck.id] = true;
+		}
+		else {
+			delete deckOnline[deck.id];
+		}
+		App.viewModel.recordersOnline(_(deckOnline).keys().length);
 	});
 
 	socket.on('deck:message', function (data) {
 		if ('message' === data.type) {
-			viewModel.messages.unshift(new Message(data));
-			while (viewModel.messages().length > 10) {
-				viewModel.messages.pop();
+			App.viewModel.messages.unshift(new Message(data));
+			while (App.viewModel.messages().length > 50) {
+				App.viewModel.messages.pop();
 			}
 		}
 	//	console.log('message: ', message);

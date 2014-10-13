@@ -8,7 +8,8 @@
 		<title>BlackMagic HyperDeck controller</title>
 
 		<!-- Bootstrap -->
-		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap.css" rel="stylesheet">
+		<link href="css/bootstrap-theme.css" rel="stylesheet">
 		<link href="css/bootstrap-switch.min.css" rel="stylesheet">
 		<link href="css/navbar-fixed-top.css" rel="stylesheet">
 
@@ -24,17 +25,20 @@
 		<script src="js/underscore.js"></script>
 		<script src="js/jquery.js"></script>
 		<script src="js/jquery.cookie.js"></script>
+		<script src="js/jquery-ui.js"></script>
+		<script src="js/director.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/bootstrap-switch.min.js"></script>
 		<script src="js/knockout-3.2.0.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 
 		<script src="/index.js"></script>
+		<script src="/router.js"></script>
 	</head>
-	<body role="document">
+	<body class="document" role="document">
 
  <!-- Fixed navbar -->
-		<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
@@ -43,27 +47,87 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">BlackMagic HyperDeck controller</a>
+					<span class="navbar-brand" href="#">BlackMagic HyperDeck controller</span>
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="#"><span class="glyphicon glyphicon-home"></span></a></li>
-						<li><a href="#about">About</a></li>
+						<li class="active"><a href="/#/"><span class="glyphicon glyphicon-home"></span></a></li>
+						<li><a href="/#/settings"><span class="glyphicon glyphicon-wrench"></span></a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Theme</a>
-							<ul id="ThemeSelect" class="dropdown-menu" role="menu">
-								<li><a href="#">Default</a></li>
-								<li><a href="#">Inverse</a></li>
-							</ul>
-						</li>
+						<li><a href="/#/about">About</a></li>
 					</ul>
 				</div><!--/.nav-collapse -->
 			</div>
 		</div>
 
-		<div class="container" role="main">
+		<section id="about" class="container" title="About">
+			About...
+		</section>
+
+		<section id="settings" class="container" title="Settings">
+<div class="sortable row" data-bind="foreach: recorders">
+	<div class="col-sm-6 col-md-4" data-bind="attr: { id: id }">
+<div class="panel panel-default">
+<!-- div class="panel-heading">
+		<div class="btn-toolbar">
+			<div class="btn-group pull-right">
+				<label class="label label-default">
+					<span class="glyphicon glyphicon-move"></span>
+				</label>
+			</div>
+		</div>
+	</div -->
+	<br/>
+												<form class="form-horizontal" role="form">
+													<div class="form-group">
+														<label for="deck-name" class="col-md-3 control-label">name</label>
+														<div class="col-md-6">
+															<input name="deck-name" class="form-control" type="text" data-bind="value: name()"/>
+														</div>
+													</div>
+													<div class="form-group">
+														<label for="deck-host" class="col-md-3 control-label">address</label>
+														<div class="col-md-6">
+															<input name="deck-host" class="form-control" type="text" data-bind="value: host()"/>
+														</div>
+													</div>
+													<div class="form-group">
+														<label for="deck-port" class="col-md-3 control-label">port</label>
+														<div class="col-md-6">
+															<input name="deck-host" type="text" class="form-control" data-bind="value: port()"/>
+														</div>
+													</div>
+
+													<div class="panel-footer">
+													<div class="btn-toolbar">
+														<div class="btn-group">
+															<button class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button">
+																<span class="glyphicon glyphicon-trash"></span>
+															</button>
+															<ul class="dropdown-menu" role="menu">
+																<li><a href="#">OK</a></li>
+																<li><a href="#">Cancel</a></li>
+															</ul>
+														</div>
+														<div class="pull-right">
+															<button class="btn btn-default btn-primary" href="#" role="button">
+																<span class="glyphicon glyphicon-floppy-saved"></span>
+																Save
+															</button>
+															<button class="btn btn-default" href="#" role="button">
+																Cancel
+															</button>
+														</div>
+													</div>
+													</div>
+												</form>
+		</div>
+	</div>
+</div>
+		</section>
+
+		<section id="main" class="container active" role="main" title="Home">
 
 			<div class="row">
 				<div class="col-md-6">
@@ -107,11 +171,17 @@
 
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							Recorders <span class="badge pull-right"><span data-bind="text: recorders().length"></span></span>
+							Recorders
+							<span class="badge pull-right">
+								<span data-bind="text: recordersOnline()"></span>
+								<span>/</span>
+								<span data-bind="text: recorders().length"></span>
+							</span>
 						</div>
+						<!--
 						<div class="panel-body">
 							<div class="btn-toolbar" role="toolbar">
-								<div class="able-view-switch btn-group pull-right">
+								<div class="btn-group pull-right">
 									<button type="button" class="btn btn-sm" data-able-view="list">
 										<span class="glyphicon glyphicon-th-list"></span>
 									</button>
@@ -121,36 +191,177 @@
 								</div>
 							</div>
 						</div>
-						<div class="list-group able-view-content" data-bind="foreach: recorders">
-							<div class="list-group-item able-view-item">
-								<div>
-									<span data-bind="text: name()"></span>
-								</div>
-								<div>
-									<span data-bind="text: socket()"></span>
-								</div>
-								<div>
-									<span class="label label-danger">
-										<span class="glyphicon glyphicon-warning-sign"></span>
-									</span>
-									<span class="label label-success" data-bind="visible: connected()">
-										<span class="glyphicon glyphicon-ok"></span>
-									</span>
-									<span class="label label-default" data-bind="visible: !connected()">
-										<span class="glyphicon glyphicon-remove"></span>
-									</span>
-								</div>
-								<div>
-									<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
-									<button class="btn btn-xs" href="#" role="button">
-										<span class="glyphicon glyphicon-wrench"></span>
-									</button>
-									<button class="btn btn-xs" href="#" role="button">
-										<span class="glyphicon glyphicon-trash"></span>
-									</button>
-								</div>
-							</div>
-						</div>
+						-->
+						<table class="table">
+							<thead>
+								<tr>
+									<th>
+									name
+									</th>
+									<th class="center" colspan="2">
+									connection
+									</th>
+									<th class="center">
+									disks
+									</th>
+									<th class="center">
+									chat
+									</th>
+								</tr>
+							</thed>
+							<tbody class="list-group" data-bind="foreach: recordersSorted">
+								<tr data-bind="visible: !showSettings()">
+									<td>
+										<span data-bind="text: name()"></span>
+									</td>
+									<td>
+										<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
+									</td>
+									<td>
+										<span class="label label-default" data-bind="attr: { class: connected.binding }">
+											<span class="glyphicon glyphicon-ok"></span>
+										</span>
+									</td>
+									<td class="center">
+										<span class="label label-success" data-bind="visible: true">
+											<span class="glyphicon glyphicon-hdd"></span>
+										</span>
+										<span class="label label-default" data-bind="visible: false">
+											<span class="glyphicon glyphicon-hdd"></span>
+										</span>
+									</td>
+									<td class="center">
+										<span class="label label-default" data-bind="visible: !errorsUnread()">
+											<span class="glyphicon glyphicon-warning-sign"></span>
+										</span>
+										<span class="label label-danger" data-bind="visible: errorsUnread(), event: { click: App.deckErrors }">
+											<span class="glyphicon glyphicon-warning-sign"></span>
+										</span>
+									</td>
+									<td>
+										<button class="btn btn-xs btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
+											<span class="glyphicon glyphicon-tasks"></span>
+										</button>
+									</td>
+								</tr>
+								<!-- tr class="deck-settings" data-bind="visible: showSettings">
+									<td colspan="2">
+										<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
+									</td>
+									<td colspan="4">
+										<div class="pull-right">
+											<button class="btn btn-xs btn-success" href="#" role="button" data-bind="attr: { class: connected.binding }">
+												<span class="glyphicon glyphicon-ok"></span>
+											</button>
+											&nbsp;
+											&nbsp;
+											&nbsp;
+											&nbsp;
+											<button class="btn btn-sm btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
+												<span class="glyphicon glyphicon-tasks"></span>
+											</button>
+										</div>
+									</td>
+								</tr -->
+								<tr class="deck-settings" data-bind="visible: showSettings">
+									<td colspan="6">
+
+										<ul class="nav nav-tabs" role="tablist" data-bind="tablist: {}">
+											<li class="active">
+												<a class="tab-link" href="#connection" role="tab" data-toggle="tab">
+													<span class="glyphicon glyphicon-wrench"></span>
+													Connection
+												</a>
+											</li>
+											<li>
+												<a class="tab-link" href="#device" role="tab" data-toggle="tab">
+													<span class="has-success glyphicon glyphicon-ok"></span>
+													Device
+												</a>
+											</li>
+											<li>
+												<a class="tab-link" href="#disks" role="tab" data-toggle="tab">
+													<span class="glyphicon glyphicon-hdd"></span>
+													Disks
+												</a>
+											</li>
+											<li>
+												<a class="tab-link" href="#messages" role="tab" data-toggle="tab">
+													<span class="glyphicon glyphicon-warning-sign"></span>
+													Messages
+												</a>
+											</li>
+											<li class="btn btn-xs btn-default pull-right" role="button">
+												<span class="glyphicon glyphicon-remove"></span>
+											</li>
+										</ul>
+
+										<!-- Tab panes -->
+										<div class="tab-content">
+											<br/>
+											<div class="tab-pane active" id="connection">
+												<form class="form-horizontal" role="form">
+													<div class="form-group">
+														<label for="deck-name" class="col-md-3 control-label">name</label>
+														<div class="col-md-6">
+															<input name="deck-name" class="form-control" type="text" data-bind="value: name()"/>
+														</div>
+													</div>
+													<div class="form-group">
+														<label for="deck-host" class="col-md-3 control-label">address</label>
+														<div class="col-md-6">
+															<input name="deck-host" class="form-control" type="text" data-bind="value: host()"/>
+														</div>
+													</div>
+													<div class="form-group">
+														<label for="deck-port" class="col-md-3 control-label">port</label>
+														<div class="col-md-6">
+															<input name="deck-host" type="text" class="form-control" data-bind="value: port()"/>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="col-md-3">
+															<label for="deck-port" class="control-label">&nbsp;</label>
+														</div>
+													</div>
+
+													<div class="btn-toolbar">
+														<div class="btn-group">
+															<button class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button">
+																<span class="glyphicon glyphicon-trash"></span>
+															</button>
+															<ul class="dropdown-menu" role="menu">
+																<li><a href="#">OK</a></li>
+																<li><a href="#">Cancel</a></li>
+															</ul>
+														</div>
+														<div class="pull-right">
+															<button class="btn btn-default btn-primary" href="#" role="button">
+																<span class="glyphicon glyphicon-floppy-saved"></span>
+																Save
+															</button>
+															<button class="btn btn-default" href="#" role="button">
+																Cancel
+															</button>
+														</div>
+													</div>
+												</form>
+											</div>
+											<div class="tab-pane" id="device">
+												Device
+											</div>
+											<div class="tab-pane" id="disks">
+												Disks
+											</div>
+											<div class="tab-pane" id="messages">
+												Messages
+											</div>
+										</div>
+
+									</td>
+								</tr>
+							</tbody>
+						</table>
 						<div class="clear">&nbsp;</div>
 					</div>
 				</div>
@@ -186,17 +397,7 @@
 				</div>
 			</div>
 
-			<!-- Main component for a primary marketing message or call to action -->
-			<!-- div class="jumbotron">
-				<h1>Navbar example</h1>
-				<p>This example is a quick exercise to illustrate how the default, static and fixed to top navbar work. It includes the responsive CSS and HTML, so it also adapts to your viewport and device.</p>
-				<p>To see the difference between static and fixed top navbars, just scroll.</p>
-				<p>
-					<a class="btn btn-lg btn-primary" href="../../components/#navbar" role="button">View navbar docs &raquo;</a>
-				</p>
-			</div -->
-
-		</div> <!-- /container -->
+		</section> <!-- /container -->
 
 	</body>
 </html>

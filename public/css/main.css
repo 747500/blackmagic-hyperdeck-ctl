@@ -1,38 +1,30 @@
 
-
-ul.grid-view {
-	margin: 0;
-	padding: 0;
-}
-
-ul.grid-view li {
-	margin: 0;
-	padding: 0;
-}
-
 .clear {
 	clear: both;
 	height: 1px;
 	overflow: hidden;
 }
 
-div.able-view-list {
-	display:table;
-	width: 100%;
+tr.deck-settings {
+	border: 0px;
 }
 
-div.able-view-list>div {
-	display: table-row;
-	margin: .25em .5em;
+tr.deck-settings td {
+	border: 0px;
 }
 
-div.able-view-list>div>div {
-	display: table-cell;
-	margin: .25em .5em;
-	padding: .25em .5em;
+th.center, td.center {
+	text-align: center;
+}
+td {
+	vertical-align: center;
 }
 
-div.able-view-grid>div {
-	width: 33.33%;
-	float: left;
+section.container {
+	display: none;
 }
+
+section.active {
+	display: block;
+}
+

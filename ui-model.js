@@ -7,7 +7,6 @@ var fs = require('fs');
 
 var _ = require('underscore');
 var uuid = require('uuid');
-var low = require('lowdb');
 
 process.on('disconnect', function () {
 	process.exit(0);
@@ -33,51 +32,73 @@ Model.prototype.sendCommand = function (cmd) {
 	});
 };
 Model.prototype.update = function (deck) {
+	delete deck.errors;
 	process.send({
 		type: 'HyperDeck:update',
 		data: deck
 	});
 };
-
-var model = new Model();
-
-var db = low('db.json');
-
-//
-// Init parent - HyperDeck tcp pool
-//
-db('recorders').value().map(function (deck) {
-	process.send({
-		type: 'HyperDeck:add',
-		data: _(deck).pick(
+Model.prototype.dbLoadSync = function () {
+	var list = JSON.parse(fs.readFileSync('db.json'));
+	_(list).values().forEach(function (deck) {
+		process.send({
+			type: 'HyperDeck:add',
+			data: _(deck).pick(
+				'id',
+				'name',
+				'host',
+				'port',
+				'disabled',
+				'createdAt',
+				'updatedAt',
+				'deletedAt'
+			)
+		});
+	});
+};
+Model.prototype.dbDump = function () {
+	var data = _(this.table).values().map(function (deck) {
+		return _(deck).pick(
 			'id',
 			'name',
 			'host',
 			'port',
-			'disabled'
-		)
+			'disabled',
+			'createdAt',
+			'updatedAt',
+			'deletedAt'
+		);
 	});
-});
+	return JSON.stringify(data, null, 2);
+};
+
+Model.prototype.dbSave = function (cb) {
+	fs.writeFile('db.json', this.dbDump(), cb);
+};
+
+var model = new Model();
 
 process.on('message', function (message) {
-
+	var data;
 	var deck = _(message.data).pick(
 		'id',
 		'name',
 		'host',
 		'port',
-		'disabled'
+		'disabled',
+		'errors'
 	);
 
 	if ('HyperDeck:add' === message.type) {
 		deck.connected = false;
+		deck.createdAt = new Date();
+		deck.errors = [];
 		model.table[deck.id] = deck;
-		model.emit('add', deck);
+		model.emit('update', deck);
 		return;
 	}
 
 	if ('HyperDeck:notify' === message.type) {
-		console.log('-');
 		model.messages.push(message.data);
 		model.messagesExpire();
 		model.emit('notify', message.data);
@@ -85,25 +106,56 @@ process.on('message', function (message) {
 	}
 
 	deck = model.table[deck.id];
+	data = message.data;
 
 	if ('object' !== typeof deck) {
-		console.error('Unexpected deck for message:\n%s\n',
-				JSON.stringify(message, null, 2));
+		console.error('Unknown deck:\n%s\n',
+					  JSON.stringify(message, null, 2));
 		return;
 	}
 
 	if ('HyperDeck:open' === message.type) {
 		deck.connected = true;
+		deck.errors = [];
 		model.emit('update', deck);
+		return;
+	}
+
+	if ('HyperDeck:fail' === message.type) {
+		console.log(deck);
+		deck.errors.push(data.message);
+		while (deck.errors.length > 5) {
+			deck.errors.shift();
+		}
+		model.emit('update', {
+			id: deck.id,
+			errors: deck.errors
+		});
 		return;
 	}
 
 	if ('HyperDeck:update' === message.type) {
-		model.emit('update', deck);
+		[ 'name', 'host', 'port', 'disabled' ].forEach(function (k) {
+			if (deck[k] === message.data[k]) {
+				return; // not changed
+			}
+			deck[k] = message.data[k];
+			deck.updatedAt = new Date();
+		});
+		model.dbSave(function (err) {
+			if (err) {
+				console.error('Can not write DB:\n%s\n', err.stack || err);
+				return;
+			}
+			model.emit('update', deck);
+		});
 		return;
 	}
 
 	if ('HyperDeck:close' === message.type) {
+		if (false === deck.connected) {
+			return; // already disconnected
+		}
 		deck.connected = false;
 		model.emit('update', deck);
 		return;
@@ -121,12 +173,16 @@ process.on('message', function (message) {
 });
 
 process.on('exit', function () {
-	db.save();
+	console.log('exit...');
 });
 
 process.on('SIGINT', function () {
-	process.exit(0);
+	model.dbSave(function () {
+		process.exit(0);
+	});
 });
+
+model.dbLoadSync();
 
 module.exports = model;
 

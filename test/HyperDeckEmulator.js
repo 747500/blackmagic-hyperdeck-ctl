@@ -15,7 +15,7 @@ var server = net.createServer({
 		remotePort = socket.remotePort,
 		localAddress = socket.localAddress,
 		localPort = socket.localPort;
-		
+
 	console.log('%s:%s connected %s:%s',
 			localAddress, localPort,
 			remoteAddress, remotePort);
@@ -77,22 +77,16 @@ var server = net.createServer({
 
 		if (line.match(/^stop/)) {
 			socket.write('200 ok\n');
-			socket.end();
-			socket.destroy();
 			return;
 		}
 
 		if (line.match(/^record/)) {
 			socket.write('200 ok\n');
-			socket.end();
-			socket.destroy();
 			return;
 		}
 
 		if (line.match(/^play/)) {
 			socket.write('200 ok\n');
-			socket.end();
-			socket.destroy();
 			return;
 		}
 

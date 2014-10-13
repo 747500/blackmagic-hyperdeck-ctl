@@ -19,13 +19,12 @@ module.exports = function (app, io) {
 	});
 
 	model.on('notify', function (message) {
-		console.log('model(notify) >> sockets(deck:message)', message);
 		io.sockets.emit('deck:message', message);
 	});
 
 	model.on('update', function (deck) {
+		console.log(deck);
 		io.sockets.emit('deck:update', deck);
-		console.log('UPDATE: %s', deck);
 	});
 
 	io.on('connection', function (socket) {
@@ -36,7 +35,7 @@ module.exports = function (app, io) {
 
 		_(model.table).keys().forEach(function (k) {
 			var deck = model.table[k];
-			socket.emit('deck:create', deck);
+			socket.emit('deck:update', deck);
 		});
 
 		_(model.messages).forEach(function (message) {
