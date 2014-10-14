@@ -20,17 +20,20 @@ function Model() {
 }
 
 Model.prototype = new events.EventEmitter();
+
 Model.prototype.messagesExpire = function () {
 	while (this.messages.length > this.messagesMax) {
 		this.messages.shift();
 	}
 };
+
 Model.prototype.sendCommand = function (cmd) {
 	process.send({
 		type: 'HyperDeck:command',
 		data: cmd
 	});
 };
+
 Model.prototype.update = function (deck) {
 	delete deck.errors;
 	process.send({
@@ -38,6 +41,7 @@ Model.prototype.update = function (deck) {
 		data: deck
 	});
 };
+
 Model.prototype.dbLoadSync = function () {
 	var list = JSON.parse(fs.readFileSync('db.json'));
 	_(list).values().forEach(function (deck) {
@@ -57,6 +61,7 @@ Model.prototype.dbLoadSync = function () {
 		});
 	});
 };
+
 Model.prototype.dbDump = function () {
 	var data = _(this.table).values().map(function (deck) {
 		return _(deck).pick(
@@ -125,7 +130,6 @@ process.on('message', function (message) {
 	}
 
 	if ('HyperDeck:fail' === message.type) {
-		console.log(deck);
 		deck.errors.push(data.message);
 		while (deck.errors.length > 5) {
 			deck.errors.shift();

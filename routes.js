@@ -23,7 +23,6 @@ module.exports = function (app, io) {
 	});
 
 	model.on('update', function (deck) {
-		console.log(deck);
 		io.sockets.emit('deck:update', deck);
 	});
 

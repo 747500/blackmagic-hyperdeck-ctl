@@ -89,7 +89,8 @@ HyperDeckPool.prototype.add = function (params) {
 		name: params.name,
 		host: params.host,
 		port: (params.port || 9993),
-		disabled: (params.disabled || false)
+		disabled: (params.disabled || false),
+		order: (params.order || 0)
 	};
 
 	this.emit('add', this.pool[params.id]);
