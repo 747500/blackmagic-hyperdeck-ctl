@@ -28,3 +28,7 @@ section.active {
 	display: block;
 }
 
+section#footer {
+	display: block;
+}
+

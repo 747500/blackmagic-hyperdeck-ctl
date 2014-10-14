@@ -66,8 +66,10 @@
 		</section>
 
 		<section id="settings" class="container" title="Settings">
+
 			<div class="row">
 				<div class="col-sm-2 col-md-2">
+
 					<div class="panel panel-default">
 						<div class="btn-toolbar">
 							<button id="reorder-toggle" class="btn btn-sm btn-default" role="button">
@@ -76,6 +78,7 @@
 							</button>
 						</div>
 					</div>
+
 				</div>
 				<div class="col-sm-10 col-md-10">
 					<div class="sortable row" data-bind="foreach: recordersSorted">
@@ -137,45 +140,38 @@
 		</section>
 
 		<section id="main" class="container active" role="main" title="Home">
-			<div class="row">
-				<div class="col-md-6">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							Controls
-						</div>
-						<ul class="list-group">
-							<li class="list-group-item">
-								<form role="form">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox" class="deck-cmd-remote">
-											Remote control
-										</label>
-									</div>
-  								</form>
-							</li>
-							<li class="list-group-item">
-								<form class="btn-group deck-control">
-									<button type="submit" class="btn btn-sm btn-danger">
-										<span class="glyphicon glyphicon-record"></span>
-										Record
-									</button>
-									<button type="submit" class="btn btn-sm btn-default">
-										<span class="glyphicon glyphicon-stop"></span>
-										Stop
-									</button>
-								</form>
-							</li>
-							<li class="list-group-item">
-								<form class="input-group deck-command">
-									<input type="text" class="form-control">
-									<span class="input-group-btn">
-										<button class="btn btn-default" type="submit">↵</button>
-									</span>
-								</form>
-							</li>
-						</ul>
-					</div>
+
+			<div class="well well-small">
+				<div class="btn-toolbar">
+					<span class="btn-group " data-toggle="buttons">
+						<label class="btn btn-default btn-sm">
+							Remote control
+							<input type="checkbox" class="deck-cmd-remote">
+						</label>
+					</span>
+
+					<span class="btn-group deck-control">
+						<button type="submit" class="deck-cmd btn btn-sm btn-danger">
+							<span class="glyphicon glyphicon-record"></span>
+							Record
+						</button>
+						<button type="submit" class="deck-cmd btn btn-sm btn-default">
+							<span class="glyphicon glyphicon-stop"></span>
+							Stop
+						</button>
+					</span>
+
+					<span class="btn-group pull-right">
+						<span class="deck-cmd input-group input-group-sm">
+							<span class="input-group-addon">Command:</span>
+							<input type="text" class="form-control"/>
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="submit">↵</button>
+							</span>
+						</span>
+					</span>
+				</div>
+			</div>
 
 					<div class="panel panel-default">
 						<div class="panel-heading">
@@ -196,10 +192,13 @@
 										connection
 									</th>
 									<th class="center">
-										disks
+										transport
 									</th>
 									<th class="center">
-										chat
+										disk
+									</th>
+									<th class="center">
+										messages
 									</th>
 								</tr>
 							</thed>
@@ -214,6 +213,19 @@
 									<td>
 										<span class="label label-default" data-bind="attr: { class: connected.binding }">
 											<span class="glyphicon glyphicon-ok"></span>
+										</span>
+									</td>
+									<td class="center">
+										<span data-bind="attr: { class: 'label label-default' }">
+											<span class="glyphicon glyphicon-film"></span>
+										</span>
+										&nbsp;
+										<span data-bind="attr: { class: 'label label-warning' }">
+											<span class="glyphicon glyphicon-film"></span>
+										</span>
+										&nbsp;
+										<span data-bind="attr: { class: 'label label-success' }">
+											<span class="glyphicon glyphicon-film"></span>
 										</span>
 									</td>
 									<td class="center">
@@ -361,19 +373,27 @@
 								</tr>
 							</tbody>
 						</table>
-						<div class="clear">&nbsp;</div>
 					</div>
-				</div>
 
-				<div class="col-md-6">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							Messages
 						</div>
 						<div style="height: 40em; overflow: auto;">
-							<table class="table">
+							<table class="table table-condensed table-striped">
+								<thead>
+									<tr>
+										<th class="col-sm-2">recorder</th>
+										<th class="col-sm-3">timestamp</th>
+										<th class="col-sm-1">code</th>
+										<th class="col-sm-7">message</th>
+									</tr>
+								</thead>
 								<tbody data-bind="foreach: messages">
 									<tr>
+										<td>
+											<span data-bind="text: deckName()"></span>
+										</td>
 										<td>
 											<span data-bind="text: timestamp()"></span>
 										</td>
@@ -381,11 +401,6 @@
 											<span data-bind="text: code()"></span>
 										</td>
 										<td>
-											<span data-bind="text: deckName()"></span>
-										</td>
-									</tr>
-									<tr>
-										<td colspan="3">
 											<span data-bind="html: text()"></span>
 										</td>
 									</tr>
@@ -393,10 +408,24 @@
 							</table>
 						</div>
 					</div>
-				</div>
-			</div>
 
 		</section> <!-- /container -->
+
+		<section id="footer" class="container">
+			<hr/>
+			<div class="row">
+					<div class="col-md-6">
+						<p class="text-muted">
+							© 2014 <a href="mailto:s.rasnikov@gmail.com">Serge Rasnikov</a>
+						</p>
+					</div>
+					<div class="col-md-6">
+					<p class="text-muted pull-right">
+						All trademarks are property of their respective owners.
+					</p>
+				</div>
+			</div>
+		</section>
 
 	</body>
 </html>

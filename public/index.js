@@ -36,7 +36,7 @@ $(function () {
 	});
 
 	$('#reorder-toggle').click(function (event) {
-		$(this).toggleClass('active btn-success');//, function () {
+		$(this).toggleClass('active btn-success');
 
 		if ($(this).hasClass('active')) {
 			$sortable.disableSelection();
@@ -179,8 +179,11 @@ $(function () {
 	});
 
 	$('.deck-cmd-remote').change(function (event) {
-		console.log(event.currentTarget.checked);
-		if (event.currentTarget.checked) {
+		var $btn = $(this).parent();
+		$btn.toggleClass('btn-success');
+		$btn.toggleClass('btn-default');
+
+		if ($(this).parent().hasClass('btn-success')) {
 			socket.emit('deck:command', 'remote: enable: true');
 		}
 		else {
