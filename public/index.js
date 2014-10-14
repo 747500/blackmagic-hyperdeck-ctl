@@ -31,18 +31,34 @@ $(function () {
 
 	var $sortable = $('.sortable');
 	$sortable.sortable({
-		tolerance: 'intersect',
-		update: function(event, ui) {
-			$('>div', this).each(function (i, el) {
-				App.deckById[el.id].order(i);
-				socket.emit('deck:update', {
-					id: el.id,
-					order: i
-				});
-			});
-		}
+		disabled: true,
+		tolerance: 'intersect'
 	});
-	$sortable.disableSelection();
+
+	$('#reorder-toggle').click(function (event) {
+		$(this).toggleClass('active btn-success');//, function () {
+
+		if ($(this).hasClass('active')) {
+			$sortable.disableSelection();
+			$sortable.sortable('enable');
+			return;
+		}
+
+		$sortable.sortable('disable');
+		$sortable.enableSelection();
+		$sortable.children().each(function (i, el) {
+			if (App.deckById[el.id].order() === i) {
+				return;
+			}
+
+			App.deckById[el.id].order(i);
+			socket.emit('deck:update', {
+				id: el.id,
+				order: i
+			});
+		});
+
+	});
 
 	var Connected = function (state) {
 		var self;
@@ -182,7 +198,6 @@ $(function () {
 		var deck = App.deckById[data.id];
 
 		if ('object' !== typeof deck) {
-			console.log(data);
 			deck = new Recorder(data);
 			App.deckById[deck.id] = deck;
 			App.viewModel.recorders.push(deck);
@@ -204,7 +219,6 @@ $(function () {
 				if ('errors' === k && 0 === data[k].length) {
 					deck.errorsUnread(false);
 				}
-				//console.log('>>>', k, data[k]);
 				deck[k](data[k]);
 			});
 		}

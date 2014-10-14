@@ -149,6 +149,7 @@ process.on('message', function (message) {
 			deck[k] = message.data[k];
 			deck.updatedAt = new Date();
 		});
+		console.log('UPDATE: %s', deck);
 		model.dbSave(function (err) {
 			if (err) {
 				console.error('Can not write DB:\n%s\n', err.stack || err);
