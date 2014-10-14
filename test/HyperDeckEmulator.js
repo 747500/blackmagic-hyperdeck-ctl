@@ -8,6 +8,13 @@ var util = require('util');
 var net = require('net');
 var readline = require('readline');
 
+var state = {
+	remote: {
+		enable: false,
+		override: false
+	}
+};
+
 var server = net.createServer({
 	allowHalfOpen: false
 }, function(socket) {
@@ -44,14 +51,31 @@ var server = net.createServer({
 	});
 
 	rd.on('line', function(line) {
+		var reparsed;
 
 		console.log('>>> %s', line);
 
-		if (line.match(/^remote/)) {
-			socket.write('210 remote info:\n' +
-					'enabled: "false"\n' +
-					'override: "false"\n' +
-					'\n');
+		reparsed = line.match(/^remote(:\s+(enable:\s+(true|false)))?(:\s+(override:\s+(true|false)))?/);
+		if (null !== reparsed) {
+
+			if (reparsed[2]) {
+				state.remote.enabled = JSON.parse(reparsed[3]);
+			}
+			if (reparsed[5]) {
+				state.remote.enabled = JSON.parse(reparsed[6]);
+			}
+
+			socket.write(
+				util.format(
+					'210 remote info:\n' +
+					'enabled: "%s"\n' +
+					'override: "%s"\n' +
+					'\n',
+					state.remote.enabled,
+					state.remote.override
+					)
+				);
+
 			return;
 		}
 
@@ -101,7 +125,9 @@ var server = net.createServer({
 			return;
 		}
 
-		socket.write(util.format('100 Syntax error: "%s"\n', line));
+		var replyStr = util.format('100 Syntax error: "%s"\n', line);
+		console.log(replyStr);
+		socket.write(replyStr);
 	});
 });
 
