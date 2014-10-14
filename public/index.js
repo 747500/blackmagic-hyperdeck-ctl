@@ -22,23 +22,27 @@ ko.bindingHandlers.tablist = {
 
 var App = {
 	deckSchema: [
-		'id', 'name', 'host', 'port', 'disabled'
+		'id', 'name', 'host', 'port', 'disabled', 'order'
 	]
 };
 
 $(function () {
+	var socket = io.connect();
 
 	var $sortable = $('.sortable');
 	$sortable.sortable({
-		tolerance: "intersect",
+		tolerance: 'intersect',
 		update: function(event, ui) {
 			$('>div', this).each(function (i, el) {
 				App.deckById[el.id].order(i);
+				socket.emit('deck:update', {
+					id: el.id,
+					order: i
+				});
 			});
 		}
 	});
 	$sortable.disableSelection();
-
 
 	var Connected = function (state) {
 		var self;
@@ -65,7 +69,9 @@ $(function () {
 	var deckOnline = {};
 
 	var Recorder = function(options) {
-		this.order = ko.observable(0);
+		//console.log(options);
+
+		this.order = ko.observable(parseInt(options.order || 0));
 
 		this.connected = new Connected(options.connected);
 
@@ -74,7 +80,6 @@ $(function () {
 		this.host = ko.observable(options.host);
 		this.port = ko.observable(options.port);
 		this.disabled = ko.observable(options.disabled || false);
-	//	this.connected = ko.observable(options.connected || false);
 		this.errors = ko.observableArray();
 		this.errorsUnread = ko.observable(false);
 		this.showSettings = ko.observable(false);
@@ -166,9 +171,8 @@ $(function () {
 			socket.emit('deck:command', 'remote: enable: false');
 		}
 	});
-// --------------------------------------------------------------------------
 
-	var socket = io.connect();
+// --------------------------------------------------------------------------
 
 	socket.on('disconnect', function () {
 		App.viewModel.messages([]);
@@ -178,6 +182,7 @@ $(function () {
 		var deck = App.deckById[data.id];
 
 		if ('object' !== typeof deck) {
+			console.log(data);
 			deck = new Recorder(data);
 			App.deckById[deck.id] = deck;
 			App.viewModel.recorders.push(deck);

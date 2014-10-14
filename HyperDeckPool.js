@@ -12,7 +12,8 @@ var deckSchema = [
 	'host',
 	'port',
 	'name',
-	'disabled'
+	'disabled',
+	'order'
 ];
 
 function HyperDeckPool() {
@@ -35,6 +36,7 @@ HyperDeckPool.prototype.connect = function (params) {
 	});
 
 	params.socket.on('error', function (err) {
+		params.socket.end();
 		self.emit('fail', {
 			id: params.id,
 			message: err

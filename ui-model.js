@@ -49,6 +49,7 @@ Model.prototype.dbLoadSync = function () {
 				'host',
 				'port',
 				'disabled',
+				'order',
 				'createdAt',
 				'updatedAt',
 				'deletedAt'
@@ -64,6 +65,7 @@ Model.prototype.dbDump = function () {
 			'host',
 			'port',
 			'disabled',
+			'order',
 			'createdAt',
 			'updatedAt',
 			'deletedAt'
@@ -86,6 +88,7 @@ process.on('message', function (message) {
 		'host',
 		'port',
 		'disabled',
+		'order',
 		'errors'
 	);
 
@@ -135,7 +138,7 @@ process.on('message', function (message) {
 	}
 
 	if ('HyperDeck:update' === message.type) {
-		[ 'name', 'host', 'port', 'disabled' ].forEach(function (k) {
+		[ 'name', 'host', 'port', 'disabled', 'order' ].forEach(function (k) {
 			if (deck[k] === message.data[k]) {
 				return; // not changed
 			}
