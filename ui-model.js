@@ -34,6 +34,15 @@ Model.prototype.sendCommand = function (cmd) {
 	});
 };
 
+Model.prototype.create = function (deck) {
+	delete deck.errors;
+	deck.id = uuid();
+	process.send({
+		type: 'HyperDeck:add',
+		data: deck
+	});
+};
+
 Model.prototype.update = function (deck) {
 	delete deck.errors;
 	process.send({
@@ -41,6 +50,14 @@ Model.prototype.update = function (deck) {
 		data: deck
 	});
 };
+
+Model.prototype.remove = function (deck) {
+	process.send({
+		type: 'HyperDeck:remove',
+		data: deck
+	});
+};
+
 
 Model.prototype.dbLoadSync = function () {
 	var list = JSON.parse(fs.readFileSync('db.json'));
@@ -171,7 +188,9 @@ process.on('message', function (message) {
 
 	if ('HyperDeck:remove' === message.type) {
 		delete model.table[deck.id];
-		model.emit('remove', deck);
+		model.emit('remove', {
+			id: deck.id
+		});
 		return;
 	}
 

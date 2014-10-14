@@ -26,6 +26,14 @@ HyperDeckPool.prototype = new events.EventEmitter();
 HyperDeckPool.prototype.connect = function (params) {
 	var self = this;
 
+	if (params.socket) {
+		console.log('alredy connected %s', params);
+		process.nextTick(function () {
+			self.emit('open', _(params).omit('socket'));
+		});
+		return;
+	}
+
 	params.socket = new HyperDeckConnector({
 		host: params.host,
 		port: params.port
@@ -79,6 +87,11 @@ HyperDeckPool.prototype.disconnect = function (params) {
 
 HyperDeckPool.prototype.add = function (params) {
 
+	if ('string' !== typeof params.id) {
+		console.error('%j bad id', params);
+		return;
+	}
+
 	if ('object' === typeof this.pool[params.id]) {
 		console.error('%j exists', params);
 		return;
@@ -114,6 +127,10 @@ HyperDeckPool.prototype.remove = function (params) {
 	}
 
 	delete this.pool[params.id];
+
+	this.emit('remove', {
+		id: params.id
+	});
 }
 
 HyperDeckPool.prototype.update = function (params) {

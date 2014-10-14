@@ -76,7 +76,7 @@ pool.on('update', function (params) {
 });
 
 pool.on('remove', function (params) {
-//	console.log('remove %j', params);
+//	console.log('remove %s', params);
 
 	ui.send({
 		type: 'HyperDeck:remove',

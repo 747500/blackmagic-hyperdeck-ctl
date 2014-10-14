@@ -30,6 +30,7 @@
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/bootstrap-switch.min.js"></script>
 		<script src="js/knockout-3.2.0.js"></script>
+		<script src="js/ko.bindingHandlers.bootstrapSwitch.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 
 		<script src="/index.js"></script>
@@ -70,7 +71,7 @@
 			<div class="well well-small">
 				<div class="btn-toolbar">
 
-					<button id="deck-create" class="btn btn-sm btn-default" role="button">
+					<button class="btn btn-sm btn-default" role="button" data-bind="click: App.deckCtl.create">
 						<span class="glyphicon glyphicon-plus"></span>
 						Add
 					</button>
@@ -93,19 +94,25 @@
 									<div class="form-group">
 										<label for="deck-name" class="col-md-4 control-label">name</label>
 										<div class="col-md-7">
-											<input name="deck-name" class="form-control" type="text" data-bind="value: name()"/>
+											<input name="deck-name" class="form-control" type="text" data-bind="value: name"/>
 										</div>
 									</div>
 									<div class="form-group">
 										<label for="deck-host" class="col-md-4 control-label">address</label>
 										<div class="col-md-7">
-											<input name="deck-host" class="form-control" type="text" data-bind="value: host()"/>
+											<input name="deck-host" class="form-control" type="text" data-bind="value: host"/>
 										</div>
 									</div>
 									<div class="form-group">
 										<label for="deck-port" class="col-md-4 control-label">port</label>
 										<div class="col-md-7">
-											<input name="deck-host" type="text" class="form-control" data-bind="value: port()"/>
+											<input name="deck-port" type="text" class="form-control" data-bind="value: port"/>
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="deck-enabled" class="col-md-4 control-label">enabled</label>
+										<div class="col-md-1">
+											<input name="deck-enabled" type="checkbox" class="form-control" data-bind="checked: enabled"/>
 										</div>
 									</div>
 
@@ -117,12 +124,12 @@
 													<span class="caret"></span>
 												</button>
 												<ul class="dropdown-menu" role="menu">
-													<li><a href="#">OK</a></li>
-													<li><a href="#">Cancel</a></li>
+													<li><a href="#" data-bind="click: App.deckCtl.remove">OK</a></li>
+													<li><a href="#" data-bind="click: App.deckCtl.cancel">Cancel</a></li>
 												</ul>
 											</div>
 											<div class="pull-right">
-												<button class="btn btn-sm btn-primary" role="button">
+												<button class="btn btn-sm btn-primary" role="button" data-bind="click: App.deckCtl.save">
 													<span class="glyphicon glyphicon-floppy-saved"></span>
 													Save
 												</button>
@@ -141,40 +148,43 @@
 			</div>
 		</section>
 
-		<section id="main" class="container active" role="main" title="Home">
+		<section id="main" class="container active" role="main" title="Main">
 
 			<div class="well well-small">
 				<div class="btn-toolbar">
-					<span class="btn-group " data-toggle="buttons">
-						<label class="btn btn-default btn-sm">
-							<span class="glyphicon glyphicon-lock"></span>
-							Remote control
-							<input type="checkbox" class="deck-cmd-remote" data-bind="event: { change: App.deckCtl.remote }"/>
-						</label>
-					</span>
 
-					<span class="btn-group" data-toggle="buttons">
-						<label class="btn btn-sm btn-danger">
-							<span class="glyphicon glyphicon-record"></span>
-							Record
-							<input name="deck-rec-stop" type="radio" data-bind="event: { change: App.deckCtl.record }"/>
-						</label>
-						<label class="btn btn-sm btn-default active">
-							<span class="glyphicon glyphicon-stop "></span>
-							Stop
-							<input name="deck-rec-stop" type="radio" data-bind="event: { change: App.deckCtl.stop }" />
-						</label>
-					</span>
+						<span class="btn-group " data-toggle="buttons">
+							<label class="btn btn-default btn-sm">
+								<span class="glyphicon glyphicon-lock"></span>
+								Remote control
+								<input type="checkbox" class="deck-cmd-remote" data-bind="event: { change: App.deckCtl.remote }"/>
+							</label>
+						</span>
 
-					<span class="btn-group pull-right">
-						<form id="deck-ctl-command" role="form" class="input-group input-group-sm">
-							<span class="input-group-addon">Command:</span>
-							<input type="text" class="form-control" />
-							<span class="input-group-btn">
-								<button class="btn btn-default" type="submit">↵</button>
+						<span class="btn-group" data-toggle="buttons">
+							<label class="btn btn-sm btn-danger">
+								<span class="glyphicon glyphicon-record"></span>
+								Record
+								<input name="deck-rec-stop" type="radio" data-bind="event: { change: App.deckCtl.record }"/>
+							</label>
+							<label class="btn btn-sm btn-default active">
+								<span class="glyphicon glyphicon-stop "></span>
+								Stop
+								<input name="deck-rec-stop" type="radio" data-bind="event: { change: App.deckCtl.stop }" />
+							</label>
+						</span>
+
+						<span class="btn-group pull-right col-sm-4">
+							<span class="input-group input-group-sm">
+								<span class="input-group-addon input-group-sm">Command:</span>
+								<input type="text" class="form-control input-group-sm" />
+								<span class="input-group-btn input-group-sm">
+									<button class="btn btn-default" type="submit">↵</button>
+								</span>
 							</span>
-						</form>
-					</span>
+						</span>
+
+					</div>
 				</div>
 			</div>
 
@@ -213,7 +223,7 @@
 								<span data-bind="text: name()"></span>
 							</td>
 							<td>
-								<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
+								<input type="checkbox" data-bind="bootstrapSwitch: enabled" />
 							</td>
 							<td>
 								<span class="label label-default" data-bind="attr: { class: connected.binding }">

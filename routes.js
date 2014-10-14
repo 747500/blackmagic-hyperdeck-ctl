@@ -26,6 +26,10 @@ module.exports = function (app, io) {
 		io.sockets.emit('deck:update', deck);
 	});
 
+	model.on('remove', function (deck) {
+		io.sockets.emit('deck:remove', deck);
+	});
+
 	io.on('connection', function (socket) {
 
 		console.log('socket.io: client connected');
@@ -47,6 +51,14 @@ module.exports = function (app, io) {
 
 		socket.on('deck:update', function (deck) {
 			model.update(deck);
+		});
+
+		socket.on('deck:create', function (deck) {
+			model.create(deck);
+		});
+
+		socket.on('deck:remove', function (deck) {
+			model.remove(deck);
 		});
 
 		socket.on('disconnect', function () {

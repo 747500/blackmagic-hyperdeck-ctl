@@ -1,15 +1,31 @@
 
 "use strict";
-
-ko.bindingHandlers.switch = {
-	init: function (element, valueAccessor) {
+/*
+ko.bindingHandlers.bootstrapSwitch = {
+	init: function (element, valueAccessor, allBindingsAccessor) {
 		$(element).bootstrapSwitch({
 			size: 'mini', // mini, small
 			onColor: 'success',
 			offColor: 'warning'
 		});
+
+		// setting initial value
+		$(element).bootstrapSwitch('state', valueAccessor());
+
+	},
+	update: function (element, valueAccessor, allBindingsAccessor) {
+
+		var value = ko.utils.unwrapObservable(valueAccessor());
+
+		// Adding component options
+		var options = allBindingsAccessor().bootstrapSwitchOptions || {};
+		for (var property in options) {
+			$(element).bootstrapSwitch(property, ko.utils.unwrapObservable(options[property]));
+		}
+
+		$(element).bootstrapSwitch("state", value);
 	}
-};
+};*/
 
 ko.bindingHandlers.tablist = {
 	init: function (element, valueAccessor) {
@@ -57,7 +73,6 @@ $(function () {
 				order: i
 			});
 		});
-
 	});
 
 	var Connected = function (state) {
@@ -85,6 +100,7 @@ $(function () {
 	var deckOnline = {};
 
 	var Recorder = function(options) {
+		var self = this;
 		//console.log(options);
 
 		this.order = ko.observable(parseInt(options.order || 0));
@@ -96,6 +112,16 @@ $(function () {
 		this.host = ko.observable(options.host);
 		this.port = ko.observable(options.port);
 		this.disabled = ko.observable(options.disabled || false);
+		this.enabled = ko.computed({
+			read: function () {
+				return !this.disabled();
+			},
+			write: function (value) {
+				this.disabled(!value);
+			},
+			owner: this
+		});
+
 		this.errors = ko.observableArray();
 		this.errorsUnread = ko.observable(false);
 		this.showSettings = ko.observable(false);
@@ -105,6 +131,14 @@ $(function () {
 		this.toggleSettings = function () {
 			this.showSettings(this.showSettings() ? false : true);
 		};
+
+
+		this.disabled.subscribe(function (state) {
+			socket.emit('deck:update', {
+				id: self.id,
+			   disabled: state
+			});
+		});
 	};
 
 	var Message = function (options) {
@@ -141,14 +175,6 @@ $(function () {
 
 	// ----------------------------------------------------------------------
 
-	App.deckDisable = function (deck, event) {
-		socket.emit('deck:update', {
-			id: deck.id,
-			disabled: !event.currentTarget.checked
-		});
-		return true;
-	};
-
 	App.deckErrors = function (deck, event) {
 		deck.errorsUnread(false);
 		return true;
@@ -181,9 +207,38 @@ $(function () {
 		remote: function (data, event) {
 			socket.emit('deck:command', 'remote: enable: ' +
 					event.currentTarget.checked.toString());
-
 			$(event.currentTarget.parentElement)
 					.toggleClass('btn-success btn-default');
+		},
+		create: function (viewModel, event) {
+			var deck = {
+				id: undefined,
+				name: 'deck' + (1 + viewModel.recorders().length),
+				host: '',
+				port: 9993,
+				disabled: true,
+				order: viewModel.recordersSorted()[0].order() - 1
+			};
+			socket.emit('deck:create', deck);
+		},
+		save: function (model, event) {
+			var deck = {
+				id: model.id,
+				name: model.name(),
+				host: model.host(),
+				port: model.port(),
+				disabled: model.disabled(),
+				order: model.order()
+			};
+			socket.emit('deck:update', deck);
+		},
+		remove: function (model, event) {
+			socket.emit('deck:remove', {
+				id: model.id
+			});
+		},
+		cancel: function (model, event) {
+			return false;
 		}
 	};
 
@@ -233,6 +288,13 @@ $(function () {
 			delete deckOnline[deck.id];
 		}
 		App.viewModel.recordersOnline(_(deckOnline).keys().length);
+	});
+
+	socket.on('deck:remove', function (data) {
+		var deck = App.deckById[data.id];
+		if ('object' === typeof deck) {
+			App.viewModel.recorders.remove(deck);
+		}
 	});
 
 	socket.on('deck:message', function (data) {
