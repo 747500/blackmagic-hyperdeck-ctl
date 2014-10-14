@@ -67,46 +67,49 @@
 
 		<section id="settings" class="container" title="Settings">
 
-			<div class="row">
-				<div class="col-sm-2 col-md-2">
+			<div class="well well-small">
+				<div class="btn-toolbar">
 
-					<div class="panel panel-default">
-						<div class="btn-toolbar">
-							<button id="reorder-toggle" class="btn btn-sm btn-default" role="button">
-								<span class="glyphicon glyphicon-sort"></span>
-								Re-order
-							</button>
-						</div>
-					</div>
+					<button id="deck-create" class="btn btn-sm btn-default" role="button">
+						<span class="glyphicon glyphicon-plus"></span>
+						Add
+					</button>
+
+					<button id="reorder-toggle" class="btn btn-sm btn-default" role="button">
+						<span class="glyphicon glyphicon-sort"></span>
+						Re-order
+					</button>
 
 				</div>
-				<div class="col-sm-10 col-md-10">
-					<div class="sortable row" data-bind="foreach: recordersSorted">
-						<div class="col-sm-6 col-md-4" data-bind="attr: { id: id }">
-							<div class="panel panel-default">
-								<br/>
-								<form class="form-horizontal" role="form">
-									<fieldset>
-										<div class="form-group">
-											<label for="deck-name" class="col-md-4 control-label">name</label>
-											<div class="col-md-7">
-												<input name="deck-name" class="form-control" type="text" data-bind="value: name()"/>
-											</div>
-										</div>
-										<div class="form-group">
-											<label for="deck-host" class="col-md-4 control-label">address</label>
-											<div class="col-md-7">
-												<input name="deck-host" class="form-control" type="text" data-bind="value: host()"/>
-											</div>
-										</div>
-										<div class="form-group">
-											<label for="deck-port" class="col-md-4 control-label">port</label>
-											<div class="col-md-7">
-												<input name="deck-host" type="text" class="form-control" data-bind="value: port()"/>
-											</div>
-										</div>
+			</div>
 
-										<div class="panel-footer">
+			<div class="panel">
+				<div class="sortable" data-bind="foreach: recordersSorted">
+					<div class="col-sm-6 col-md-4" data-bind="attr: { id: id }">
+						<div class="panel panel-default">
+							<br/>
+							<form class="form-horizontal" role="form">
+								<fieldset>
+									<div class="form-group">
+										<label for="deck-name" class="col-md-4 control-label">name</label>
+										<div class="col-md-7">
+											<input name="deck-name" class="form-control" type="text" data-bind="value: name()"/>
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="deck-host" class="col-md-4 control-label">address</label>
+										<div class="col-md-7">
+											<input name="deck-host" class="form-control" type="text" data-bind="value: host()"/>
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="deck-port" class="col-md-4 control-label">port</label>
+										<div class="col-md-7">
+											<input name="deck-host" type="text" class="form-control" data-bind="value: port()"/>
+										</div>
+									</div>
+
+									<div class="panel-footer">
 										<div class="btn-toolbar">
 											<div class="btn-group">
 												<button class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button">
@@ -129,10 +132,9 @@
 												</button>
 											</div>
 										</div>
-										</div>
-									</fieldset>
-								</form>
-							</div>
+									</div>
+								</fieldset>
+							</form>
 						</div>
 					</div>
 				</div>
@@ -145,269 +147,272 @@
 				<div class="btn-toolbar">
 					<span class="btn-group " data-toggle="buttons">
 						<label class="btn btn-default btn-sm">
+							<span class="glyphicon glyphicon-lock"></span>
 							Remote control
-							<input type="checkbox" class="deck-cmd-remote">
+							<input type="checkbox" class="deck-cmd-remote" data-bind="event: { change: App.deckCtl.remote }"/>
 						</label>
 					</span>
 
-					<span class="btn-group deck-control">
-						<button type="submit" class="deck-cmd btn btn-sm btn-danger">
+					<span class="btn-group" data-toggle="buttons">
+						<label class="btn btn-sm btn-danger">
 							<span class="glyphicon glyphicon-record"></span>
 							Record
-						</button>
-						<button type="submit" class="deck-cmd btn btn-sm btn-default">
-							<span class="glyphicon glyphicon-stop"></span>
+							<input name="deck-rec-stop" type="radio" data-bind="event: { change: App.deckCtl.record }"/>
+						</label>
+						<label class="btn btn-sm btn-default active">
+							<span class="glyphicon glyphicon-stop "></span>
 							Stop
-						</button>
+							<input name="deck-rec-stop" type="radio" data-bind="event: { change: App.deckCtl.stop }" />
+						</label>
 					</span>
 
 					<span class="btn-group pull-right">
-						<span class="deck-cmd input-group input-group-sm">
+						<form id="deck-ctl-command" role="form" class="input-group input-group-sm">
 							<span class="input-group-addon">Command:</span>
-							<input type="text" class="form-control"/>
+							<input type="text" class="form-control" />
 							<span class="input-group-btn">
 								<button class="btn btn-default" type="submit">↵</button>
 							</span>
-						</span>
+						</form>
 					</span>
 				</div>
 			</div>
 
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							Recorders
-							<span class="badge pull-right">
-								<span data-bind="text: recordersOnline()"></span>
-								<span>/</span>
-								<span data-bind="text: recorders().length"></span>
-							</span>
-						</div>
-						<table class="table">
-							<thead>
-								<tr>
-									<th>
-										name
-									</th>
-									<th class="center" colspan="2">
-										connection
-									</th>
-									<th class="center">
-										transport
-									</th>
-									<th class="center">
-										disk
-									</th>
-									<th class="center">
-										messages
-									</th>
-								</tr>
-							</thed>
-							<tbody class="list-group" data-bind="foreach: recordersSorted">
-								<tr data-bind="visible: !showSettings()">
-									<td>
-										<span data-bind="text: name()"></span>
-									</td>
-									<td>
-										<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
-									</td>
-									<td>
-										<span class="label label-default" data-bind="attr: { class: connected.binding }">
-											<span class="glyphicon glyphicon-ok"></span>
-										</span>
-									</td>
-									<td class="center">
-										<span data-bind="attr: { class: 'label label-default' }">
-											<span class="glyphicon glyphicon-film"></span>
-										</span>
-										&nbsp;
-										<span data-bind="attr: { class: 'label label-warning' }">
-											<span class="glyphicon glyphicon-film"></span>
-										</span>
-										&nbsp;
-										<span data-bind="attr: { class: 'label label-success' }">
-											<span class="glyphicon glyphicon-film"></span>
-										</span>
-									</td>
-									<td class="center">
-										<span data-bind="attr: { class: 'label label-default' }">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					Recorders
+					<span class="badge pull-right">
+						<span data-bind="text: recordersOnline()"></span>
+						<span>/</span>
+						<span data-bind="text: recorders().length"></span>
+					</span>
+				</div>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								name
+							</th>
+							<th class="center" colspan="2">
+								connection
+							</th>
+							<th class="center">
+								transport
+							</th>
+							<th class="center">
+								disk
+							</th>
+							<th class="center">
+								messages
+							</th>
+						</tr>
+					</thed>
+					<tbody class="list-group" data-bind="foreach: recordersSorted">
+						<tr data-bind="visible: !showSettings()">
+							<td>
+								<span data-bind="text: name()"></span>
+							</td>
+							<td>
+								<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
+							</td>
+							<td>
+								<span class="label label-default" data-bind="attr: { class: connected.binding }">
+									<span class="glyphicon glyphicon-ok"></span>
+								</span>
+							</td>
+							<td class="center">
+								<span data-bind="attr: { class: 'label label-default' }">
+									<span class="glyphicon glyphicon-film"></span>
+								</span>
+								&nbsp;
+								<span data-bind="attr: { class: 'label label-warning' }">
+									<span class="glyphicon glyphicon-film"></span>
+								</span>
+								&nbsp;
+								<span data-bind="attr: { class: 'label label-success' }">
+									<span class="glyphicon glyphicon-film"></span>
+								</span>
+							</td>
+							<td class="center">
+								<span data-bind="attr: { class: 'label label-default' }">
+									<span class="glyphicon glyphicon-hdd"></span>
+								</span>
+								&nbsp;
+								<span data-bind="attr: { class: 'label label-warning' }">
+									<span class="glyphicon glyphicon-hdd"></span>
+								</span>
+								&nbsp;
+								<span data-bind="attr: { class: 'label label-success' }">
+									<span class="glyphicon glyphicon-hdd"></span>
+								</span>
+							</td>
+							<td class="center">
+								<span class="label label-default" data-bind="visible: !errorsUnread()">
+									<span class="glyphicon glyphicon-warning-sign"></span>
+								</span>
+								<span class="label label-danger" data-bind="visible: errorsUnread(), event: { click: App.deckErrors }">
+									<span class="glyphicon glyphicon-warning-sign"></span>
+								</span>
+							</td>
+							<td>
+								<button class="btn btn-xs btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
+									<span class="glyphicon glyphicon-tasks"></span>
+								</button>
+							</td>
+						</tr>
+						<!-- tr class="deck-settings" data-bind="visible: showSettings">
+							<td colspan="2">
+								<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
+							</td>
+							<td colspan="4">
+								<div class="pull-right">
+									<button class="btn btn-xs btn-success" href="#" role="button" data-bind="attr: { class: connected.binding }">
+										<span class="glyphicon glyphicon-ok"></span>
+									</button>
+									&nbsp;
+									&nbsp;
+									&nbsp;
+									&nbsp;
+									<button class="btn btn-sm btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
+										<span class="glyphicon glyphicon-tasks"></span>
+									</button>
+								</div>
+							</td>
+						</tr -->
+						<tr class="deck-settings" data-bind="visible: showSettings">
+							<td colspan="6">
+
+								<ul class="nav nav-tabs" role="tablist" data-bind="tablist: {}">
+									<li class="active">
+										<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#connection-' + id }">
+											<span class="glyphicon glyphicon-wrench"></span>
+											Connection
+										</a>
+									</li>
+									<li>
+										<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#device-' + id }">
+											<span class="has-success glyphicon glyphicon-ok"></span>
+											Device
+										</a>
+									</li>
+									<li>
+										<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#disks-' + id }">
 											<span class="glyphicon glyphicon-hdd"></span>
-										</span>
-										&nbsp;
-										<span data-bind="attr: { class: 'label label-warning' }">
-											<span class="glyphicon glyphicon-hdd"></span>
-										</span>
-										&nbsp;
-										<span data-bind="attr: { class: 'label label-success' }">
-											<span class="glyphicon glyphicon-hdd"></span>
-										</span>
-									</td>
-									<td class="center">
-										<span class="label label-default" data-bind="visible: !errorsUnread()">
+											Disks
+										</a>
+									</li>
+									<li>
+										<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#messages-' + id }">
 											<span class="glyphicon glyphicon-warning-sign"></span>
-										</span>
-										<span class="label label-danger" data-bind="visible: errorsUnread(), event: { click: App.deckErrors }">
-											<span class="glyphicon glyphicon-warning-sign"></span>
-										</span>
-									</td>
-									<td>
-										<button class="btn btn-xs btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
-											<span class="glyphicon glyphicon-tasks"></span>
-										</button>
-									</td>
-								</tr>
-								<!-- tr class="deck-settings" data-bind="visible: showSettings">
-									<td colspan="2">
-										<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
-									</td>
-									<td colspan="4">
-										<div class="pull-right">
-											<button class="btn btn-xs btn-success" href="#" role="button" data-bind="attr: { class: connected.binding }">
-												<span class="glyphicon glyphicon-ok"></span>
-											</button>
-											&nbsp;
-											&nbsp;
-											&nbsp;
-											&nbsp;
-											<button class="btn btn-sm btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
-												<span class="glyphicon glyphicon-tasks"></span>
-											</button>
-										</div>
-									</td>
-								</tr -->
-								<tr class="deck-settings" data-bind="visible: showSettings">
-									<td colspan="6">
+											Messages
+										</a>
+									</li>
+									<li class="btn btn-xs btn-default pull-right" role="button">
+										<span class="glyphicon glyphicon-remove"></span>
+									</li>
+								</ul>
 
-										<ul class="nav nav-tabs" role="tablist" data-bind="tablist: {}">
-											<li class="active">
-												<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#connection-' + id }">
-													<span class="glyphicon glyphicon-wrench"></span>
-													Connection
-												</a>
-											</li>
-											<li>
-												<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#device-' + id }">
-													<span class="has-success glyphicon glyphicon-ok"></span>
-													Device
-												</a>
-											</li>
-											<li>
-												<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#disks-' + id }">
-													<span class="glyphicon glyphicon-hdd"></span>
-													Disks
-												</a>
-											</li>
-											<li>
-												<a class="tab-link" role="tab" data-toggle="tab" data-bind="attr: { href: '#messages-' + id }">
-													<span class="glyphicon glyphicon-warning-sign"></span>
-													Messages
-												</a>
-											</li>
-											<li class="btn btn-xs btn-default pull-right" role="button">
-												<span class="glyphicon glyphicon-remove"></span>
-											</li>
-										</ul>
-
-										<!-- Tab panes -->
-										<div class="tab-content">
-											<br/>
-											<div class="tab-pane active" data-bind="attr: { id: 'connection-' + id }">
-												<form class="form-horizontal" role="form">
-													<div class="form-group">
-														<label for="deck-name" class="col-md-3 control-label">name</label>
-														<div class="col-md-6">
-															<input name="deck-name" class="form-control" type="text" data-bind="value: name()"/>
-														</div>
-													</div>
-													<div class="form-group">
-														<label for="deck-host" class="col-md-3 control-label">address</label>
-														<div class="col-md-6">
-															<input name="deck-host" class="form-control" type="text" data-bind="value: host()"/>
-														</div>
-													</div>
-													<div class="form-group">
-														<label for="deck-port" class="col-md-3 control-label">port</label>
-														<div class="col-md-6">
-															<input name="deck-host" type="text" class="form-control" data-bind="value: port()"/>
-														</div>
-													</div>
-													<div class="form-group">
-														<div class="col-md-3">
-															<label for="deck-port" class="control-label">&nbsp;</label>
-														</div>
-													</div>
-
-													<div class="btn-toolbar">
-														<div class="btn-group">
-															<button class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button">
-																<span class="glyphicon glyphicon-trash"></span>
-															</button>
-															<ul class="dropdown-menu" role="menu">
-																<li><a href="#">OK</a></li>
-																<li><a href="#">Cancel</a></li>
-															</ul>
-														</div>
-														<div class="pull-right">
-															<button class="btn btn-default btn-primary" href="#" role="button">
-																<span class="glyphicon glyphicon-floppy-saved"></span>
-																Save
-															</button>
-															<button class="btn btn-default" href="#" role="button">
-																Cancel
-															</button>
-														</div>
-													</div>
-												</form>
+								<!-- Tab panes -->
+								<div class="tab-content">
+									<br/>
+									<div class="tab-pane active" data-bind="attr: { id: 'connection-' + id }">
+										<form class="form-horizontal" role="form">
+											<div class="form-group">
+												<label for="deck-name" class="col-md-3 control-label">name</label>
+												<div class="col-md-6">
+													<input name="deck-name" class="form-control" type="text" data-bind="value: name()"/>
+												</div>
 											</div>
-											<div class="tab-pane" data-bind="attr: { id: 'device-' + id }">
-												Device
+											<div class="form-group">
+												<label for="deck-host" class="col-md-3 control-label">address</label>
+												<div class="col-md-6">
+													<input name="deck-host" class="form-control" type="text" data-bind="value: host()"/>
+												</div>
 											</div>
-											<div class="tab-pane" data-bind="attr: { id: 'disks-' + id }">
-												Disks
+											<div class="form-group">
+												<label for="deck-port" class="col-md-3 control-label">port</label>
+												<div class="col-md-6">
+													<input name="deck-host" type="text" class="form-control" data-bind="value: port()"/>
+												</div>
 											</div>
-											<div class="tab-pane" data-bind="attr: { id: 'messages-' + id }">
-												Messages
+											<div class="form-group">
+												<div class="col-md-3">
+													<label for="deck-port" class="control-label">&nbsp;</label>
+												</div>
 											</div>
-										</div>
 
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+											<div class="btn-toolbar">
+												<div class="btn-group">
+													<button class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button">
+														<span class="glyphicon glyphicon-trash"></span>
+													</button>
+													<ul class="dropdown-menu" role="menu">
+														<li><a href="#">OK</a></li>
+														<li><a href="#">Cancel</a></li>
+													</ul>
+												</div>
+												<div class="pull-right">
+													<button class="btn btn-default btn-primary" href="#" role="button">
+														<span class="glyphicon glyphicon-floppy-saved"></span>
+														Save
+													</button>
+													<button class="btn btn-default" href="#" role="button">
+														Cancel
+													</button>
+												</div>
+											</div>
+										</form>
+									</div>
+									<div class="tab-pane" data-bind="attr: { id: 'device-' + id }">
+										Device
+									</div>
+									<div class="tab-pane" data-bind="attr: { id: 'disks-' + id }">
+										Disks
+									</div>
+									<div class="tab-pane" data-bind="attr: { id: 'messages-' + id }">
+										Messages
+									</div>
+								</div>
 
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							Messages
-						</div>
-						<div style="height: 40em; overflow: auto;">
-							<table class="table table-condensed table-striped">
-								<thead>
-									<tr>
-										<th class="col-sm-2">recorder</th>
-										<th class="col-sm-3">timestamp</th>
-										<th class="col-sm-1">code</th>
-										<th class="col-sm-7">message</th>
-									</tr>
-								</thead>
-								<tbody data-bind="foreach: messages">
-									<tr>
-										<td>
-											<span data-bind="text: deckName()"></span>
-										</td>
-										<td>
-											<span data-bind="text: timestamp()"></span>
-										</td>
-										<td>
-											<span data-bind="text: code()"></span>
-										</td>
-										<td>
-											<span data-bind="html: text()"></span>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					Messages
+				</div>
+				<div style="height: 40em; overflow: auto;">
+					<table class="table table-condensed table-striped">
+						<thead>
+							<tr>
+								<th class="col-sm-2">recorder</th>
+								<th class="col-sm-3">timestamp</th>
+								<th class="col-sm-1">code</th>
+								<th class="col-sm-7">message</th>
+							</tr>
+						</thead>
+						<tbody data-bind="foreach: messages">
+							<tr>
+								<td>
+									<span data-bind="text: deckName()"></span>
+								</td>
+								<td>
+									<span data-bind="text: timestamp()"></span>
+								</td>
+								<td>
+									<span data-bind="text: code()"></span>
+								</td>
+								<td>
+									<span data-bind="html: text()"></span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 
 		</section> <!-- /container -->
 

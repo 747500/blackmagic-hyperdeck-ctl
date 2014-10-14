@@ -36,7 +36,7 @@ $(function () {
 	});
 
 	$('#reorder-toggle').click(function (event) {
-		$(this).toggleClass('active btn-success');
+		$(this).toggleClass('active btn-success btn-default');
 
 		if ($(this).hasClass('active')) {
 			$sortable.disableSelection();
@@ -139,8 +139,6 @@ $(function () {
 		});
 	});
 
-	ko.applyBindings(App.viewModel);
-
 	// ----------------------------------------------------------------------
 
 	App.deckDisable = function (deck, event) {
@@ -160,7 +158,7 @@ $(function () {
 		deck.toggleSettings();
 	};
 
-	var $cmdForm = $('form.deck-command');
+	var $cmdForm = $('form#deck-ctl-command');
 
 	$cmdForm.submit(function (event) {
 		var cmd = $('input', $cmdForm).val();
@@ -169,27 +167,29 @@ $(function () {
 		return false;
 	});
 
-	var $ctlForm = $('form.deck-control button');
 
-	$ctlForm.click(function (event) {
-		var cmd = $(this).text().toLowerCase().replace(/\s+/g, '');
-		console.log(cmd);
-		socket.emit('deck:command', cmd);
-		return false;
-	});
+	App.deckCtl = {
+		record: function () {
+			socket.emit('deck:command', 'record');
+		},
+		stop: function () {
+			socket.emit('deck:command', 'stop');
+		},
+		command: function () {
+			console.log(this, arguments);
+		},
+		remote: function (data, event) {
+			socket.emit('deck:command', 'remote: enable: ' +
+					event.currentTarget.checked.toString());
 
-	$('.deck-cmd-remote').change(function (event) {
-		var $btn = $(this).parent();
-		$btn.toggleClass('btn-success');
-		$btn.toggleClass('btn-default');
-
-		if ($(this).parent().hasClass('btn-success')) {
-			socket.emit('deck:command', 'remote: enable: true');
+			$(event.currentTarget.parentElement)
+					.toggleClass('btn-success btn-default');
 		}
-		else {
-			socket.emit('deck:command', 'remote: enable: false');
-		}
-	});
+	};
+
+// --------------------------------------------------------------------------
+
+	ko.applyBindings(App.viewModel);
 
 // --------------------------------------------------------------------------
 
@@ -244,5 +244,6 @@ $(function () {
 		}
 	//	console.log('message: ', message);
 	});
+
 
 });
