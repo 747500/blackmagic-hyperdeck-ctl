@@ -1,31 +1,5 @@
 
 "use strict";
-/*
-ko.bindingHandlers.bootstrapSwitch = {
-	init: function (element, valueAccessor, allBindingsAccessor) {
-		$(element).bootstrapSwitch({
-			size: 'mini', // mini, small
-			onColor: 'success',
-			offColor: 'warning'
-		});
-
-		// setting initial value
-		$(element).bootstrapSwitch('state', valueAccessor());
-
-	},
-	update: function (element, valueAccessor, allBindingsAccessor) {
-
-		var value = ko.utils.unwrapObservable(valueAccessor());
-
-		// Adding component options
-		var options = allBindingsAccessor().bootstrapSwitchOptions || {};
-		for (var property in options) {
-			$(element).bootstrapSwitch(property, ko.utils.unwrapObservable(options[property]));
-		}
-
-		$(element).bootstrapSwitch("state", value);
-	}
-};*/
 
 ko.bindingHandlers.tablist = {
 	init: function (element, valueAccessor) {
@@ -99,14 +73,9 @@ $(function () {
 	App.deckById = {};
 	var deckOnline = {};
 
-	var Recorder = function(options) {
-		var self = this;
-		//console.log(options);
-
+	var Recorder = function (options) {
 		this.order = ko.observable(parseInt(options.order || 0));
-
 		this.connected = new Connected(options.connected);
-
 		this.id = options.id;
 		this.name = ko.observable(options.name);
 		this.host = ko.observable(options.host);
@@ -121,24 +90,21 @@ $(function () {
 			},
 			owner: this
 		});
-
 		this.errors = ko.observableArray();
 		this.errorsUnread = ko.observable(false);
 		this.showSettings = ko.observable(false);
-		this.socket = function () {
-			return this.host() + ':' + this.port();
-		};
 		this.toggleSettings = function () {
 			this.showSettings(this.showSettings() ? false : true);
 		};
 
+		this.unchanged = ko.observable(true);
+	};
 
-		this.disabled.subscribe(function (state) {
-			socket.emit('deck:update', {
-				id: self.id,
-			   disabled: state
-			});
-		});
+	var Project = function (options) {
+		this.id = options.id;
+		this.title = ko.observable(options.title || '');
+		this.tag = ko.observable(options.tag || '');
+		this.recorders = ko.observableArray([]);
 	};
 
 	var Message = function (options) {
@@ -160,7 +126,19 @@ $(function () {
 		};
 	};
 
+
 	App.viewModel = {
+		newProject: undefined,
+		project: ko.computed({
+			read: function () {
+				return this.newProject;
+			},
+			write: function (value) {
+				this.newProject = value;
+			},
+			owner: this
+		}),
+		projects: ko.observableArray(),
 		recorders: ko.observableArray(),
 		messages: ko.observableArray(),
 		recordersOnline: ko.observable(0)
@@ -169,7 +147,7 @@ $(function () {
 	App.viewModel.recordersSorted = ko.computed(function() {
 		return App.viewModel.recorders().sort(function (left, right) {
 			return left.order() == right.order() ?
-			0 : (left.order() < right.order() ? -1 : 1);
+					0 : (left.order() < right.order() ? -1 : 1);
 		});
 	});
 
@@ -194,6 +172,23 @@ $(function () {
 	});
 
 
+	App.Projects = {
+		create: function () {
+			var project = new Project({});
+			App.viewModel.project(project);
+			return false;
+		},
+		save: function (model, event) {
+			var project = App.viewModel.project();
+//			App.viewModel.project(false);
+			console.log(project.title(), model);
+			App.viewModel.projects.push(model);
+			return false;
+		},
+		cancel: function () {
+			return false;
+		}
+	};
 	App.deckCtl = {
 		record: function () {
 			socket.emit('deck:command', 'record');

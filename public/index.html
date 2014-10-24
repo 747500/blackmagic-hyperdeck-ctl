@@ -53,7 +53,8 @@
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
 						<li class="active"><a href="/#/"><span class="glyphicon glyphicon-home"></span></a></li>
-						<li><a href="/#/settings"><span class="glyphicon glyphicon-wrench"></span></a></li>
+						<li><a href="/#/settings">Settings</a></li>
+						<li><a href="/#/projects">Projects</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li><a href="/#/about">About</a></li>
@@ -66,6 +67,45 @@
 			About...
 		</section>
 
+		<section id="projects" class="container" title="Projects">
+			<button class="btn btn-sm btn-default" role="button" data-bind="click: App.Projects.create">
+				<span class="glyphicon glyphicon-plus"></span>
+				Create
+			</button>
+			<div data-bind="visible: project">
+				<form role="form">
+					<div class="row">
+						<div class="col-lg-3">
+							<input type="text" class="form-control input-sm" placeholder="Project title" data-bind="value: project.title"/>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-1">
+							<input type="text" class="form-control input-sm" placeholder="tag" data-bind="value: project.tag"/>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="btn-group">
+								<button class="btn btn-sm btn-primary" role="button" data-bind="click: App.Projects.save">
+									<span class="glyphicon glyphicon-floppy-saved"></span>&nbsp;Save
+								</button>
+								<button class="btn btn-sm btn-default" role="button" data-bind="click: App.Projects.cancel">
+									<span class="glyphicon glyphicon-floppy-remove"></span>&nbsp;Cancel
+								</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<ul data-bind="foreach: projects">
+				<li>
+					<div data-bind="text: title"></div>
+				</li>
+			</ul>
+		</section>
+
 		<section id="settings" class="container" title="Settings">
 
 			<div class="well well-small">
@@ -73,7 +113,7 @@
 
 					<button class="btn btn-sm btn-default" role="button" data-bind="click: App.deckCtl.create">
 						<span class="glyphicon glyphicon-plus"></span>
-						Add
+						Create
 					</button>
 
 					<button id="reorder-toggle" class="btn btn-sm btn-default" role="button">
@@ -84,68 +124,43 @@
 				</div>
 			</div>
 
-			<div class="panel">
-				<div class="sortable" data-bind="foreach: recordersSorted">
-					<div class="col-sm-6 col-md-4" data-bind="attr: { id: id }">
-						<div class="panel panel-default">
-							<br/>
-							<form class="form-horizontal" role="form">
-								<fieldset>
-									<div class="form-group">
-										<label for="deck-name" class="col-md-4 control-label">name</label>
-										<div class="col-md-7">
-											<input name="deck-name" class="form-control" type="text" data-bind="value: name"/>
-										</div>
-									</div>
-									<div class="form-group">
-										<label for="deck-host" class="col-md-4 control-label">address</label>
-										<div class="col-md-7">
-											<input name="deck-host" class="form-control" type="text" data-bind="value: host"/>
-										</div>
-									</div>
-									<div class="form-group">
-										<label for="deck-port" class="col-md-4 control-label">port</label>
-										<div class="col-md-7">
-											<input name="deck-port" type="text" class="form-control" data-bind="value: port"/>
-										</div>
-									</div>
-									<div class="form-group">
-										<label for="deck-enabled" class="col-md-4 control-label">enabled</label>
-										<div class="col-md-1">
-											<input name="deck-enabled" type="checkbox" class="form-control" data-bind="checked: enabled"/>
-										</div>
-									</div>
-
-									<div class="panel-footer">
-										<div class="btn-toolbar">
-											<div class="btn-group">
-												<button class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button">
-													<span class="glyphicon glyphicon-trash"></span>
-													<span class="caret"></span>
-												</button>
-												<ul class="dropdown-menu" role="menu">
-													<li><a href="#" data-bind="click: App.deckCtl.remove">OK</a></li>
-													<li><a href="#" data-bind="click: App.deckCtl.cancel">Cancel</a></li>
-												</ul>
-											</div>
-											<div class="pull-right">
-												<button class="btn btn-sm btn-primary" role="button" data-bind="click: App.deckCtl.save">
-													<span class="glyphicon glyphicon-floppy-saved"></span>
-													Save
-												</button>
-												<button class="btn btn-sm btn-default" role="button">
-													<span class="glyphicon glyphicon-floppy-remove"></span>
-													Cancel
-												</button>
-											</div>
-										</div>
-									</div>
-								</fieldset>
-							</form>
+			<ul class="sortable list-group" data-bind="foreach: recordersSorted">
+				<li class="list-group-item" data-bind="attr: { id: id }">
+					<div class="row">
+						<div class="col-lg-3">
+							<input type="text" class="form-control input-sm" placeholder="name" data-bind="value: name"/>
+						</div>
+						<div class="col-lg-2">
+							<input type="text" class="form-control input-sm" placeholder="ip address" data-bind="value: host"/>
+						</div>
+						<div class="col-lg-1">
+							<input type="text" class="form-control input-sm"  placeholder="tcp port" data-bind="value: port"/>
+						</div>
+						<div class="col-lg-2">
+							<input type="checkbox" data-bind="bootstrapSwitch: enabled"/>
+						</div>
+						<div class="col-lg-2">
+							<div class="btn-group">
+								<button class="btn btn-sm btn-primary" role="button" data-bind="click: App.deckCtl.save">
+									<span class="glyphicon glyphicon-floppy-saved"></span>&nbsp;Save
+								</button>
+								<button class="btn btn-sm btn-default" role="button" data-bind="click: App.deckCtl.cancel">
+									<span class="glyphicon glyphicon-floppy-remove"></span>&nbsp;Cancel
+								</button>
+							</div>
+						</div>
+						<div class="col-lg-1">
+						</div>
+						<div class="col-lg-1">
+							<div class="btn-group pull-right">
+								<button class="btn btn-sm btn-danger" role="button" data-bind="click: App.deckCtl.remove">
+									<span class="glyphicon glyphicon-trash"></span>
+								</button>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				</li>
+			</ul>
 		</section>
 
 		<section id="main" class="container active" role="main" title="Main">
@@ -203,7 +218,7 @@
 							<th>
 								name
 							</th>
-							<th class="center" colspan="2">
+							<th class="center">
 								connection
 							</th>
 							<th class="center">
@@ -218,14 +233,16 @@
 						</tr>
 					</thed>
 					<tbody class="list-group" data-bind="foreach: recordersSorted">
-						<tr data-bind="visible: !showSettings()">
+						<tr data-bind="visible: enabled">
 							<td>
 								<span data-bind="text: name()"></span>
 							</td>
+							<!--
 							<td>
-								<input type="checkbox" data-bind="bootstrapSwitch: enabled" />
+								<input type="checkbox" data-bind="bootstrapSwitch: enabled" data-size="mini"/>
 							</td>
-							<td>
+							-->
+							<td class="center">
 								<span class="label label-default" data-bind="attr: { class: connected.binding }">
 									<span class="glyphicon glyphicon-ok"></span>
 								</span>
@@ -265,30 +282,14 @@
 								</span>
 							</td>
 							<td>
-								<button class="btn btn-xs btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
-									<span class="glyphicon glyphicon-tasks"></span>
+								<button class="btn btn-xs btn-default" role="button" data-bind="click: App.deckSettings, visible: !showSettings()">
+									<span class="glyphicon glyphicon-cog"></span>
+								</button>
+								<button class="btn btn-xs btn-default" role="button" data-bind="click: App.deckSettings, visible: showSettings()">
+									<span class="glyphicon glyphicon-remove"></span>
 								</button>
 							</td>
 						</tr>
-						<!-- tr class="deck-settings" data-bind="visible: showSettings">
-							<td colspan="2">
-								<input type="checkbox" data-bind="checked: !disabled(), event: { click: App.deckDisable, 'switchChange.bootstrapSwitch': App.deckDisable }, switch: {}" />
-							</td>
-							<td colspan="4">
-								<div class="pull-right">
-									<button class="btn btn-xs btn-success" href="#" role="button" data-bind="attr: { class: connected.binding }">
-										<span class="glyphicon glyphicon-ok"></span>
-									</button>
-									&nbsp;
-									&nbsp;
-									&nbsp;
-									&nbsp;
-									<button class="btn btn-sm btn-default" href="#" role="button" data-bind="event: { click: App.deckSettings }">
-										<span class="glyphicon glyphicon-tasks"></span>
-									</button>
-								</div>
-							</td>
-						</tr -->
 						<tr class="deck-settings" data-bind="visible: showSettings">
 							<td colspan="6">
 
@@ -316,9 +317,6 @@
 											<span class="glyphicon glyphicon-warning-sign"></span>
 											Messages
 										</a>
-									</li>
-									<li class="btn btn-xs btn-default pull-right" role="button">
-										<span class="glyphicon glyphicon-remove"></span>
 									</li>
 								</ul>
 

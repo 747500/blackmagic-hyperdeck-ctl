@@ -14,8 +14,10 @@ $(function () {
 		'/settings': function () {
 
 		},
-		'/about': function() {
+		'/projects': function () {
 
+		},
+		'/about': function() {
 
 		}
 	});

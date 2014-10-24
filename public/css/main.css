@@ -1,25 +1,4 @@
 
-.clear {
-	clear: both;
-	height: 1px;
-	overflow: hidden;
-}
-
-tr.deck-settings {
-	border: 0px;
-}
-
-tr.deck-settings td {
-	border: 0px;
-}
-
-th.center, td.center {
-	text-align: center;
-}
-td {
-	vertical-align: center;
-}
-
 section.container {
 	display: none;
 }
