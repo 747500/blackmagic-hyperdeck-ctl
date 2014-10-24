@@ -1,0 +1,45 @@
+
+notify  
+209 notify:
+transport: false
+slot: false
+remote: false
+configuration: false
+
+
+notify: transport: true
+200 ok
+
+
+notify: configuration: true
+200 ok
+
+
+notify: slot: true
+200 ok
+
+
+### disk is removed:
+
+502 slot info:
+slot id: 1
+status: empty
+
+508 transport info:
+active slot: none
+
+
+### disk is inserted:
+
+502 slot info:
+slot id: 1
+status: mounted
+volume name: Disk 1_1
+recording time: 8444
+
+# ...
+
+508 transport info:
+active slot: 1
+clip id: 1
+
