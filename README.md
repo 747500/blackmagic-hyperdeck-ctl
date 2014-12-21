@@ -1,6 +1,9 @@
 # blackmagic-hyperdeck-ctl
 
-BlackMagic HyperDeck Disk Recorder's web controller
+Web UI/controller for BlackMagic HyperDeck disk recorder.
+
+Although this tool used in production, most useful functions is not implemented yet.
+This is mostly prototype, than finished product.
 
 ## Mac OS X
 
@@ -19,4 +22,3 @@ npm start
 ```
 In browser:
 http://127.0.0.1:25006/
-
