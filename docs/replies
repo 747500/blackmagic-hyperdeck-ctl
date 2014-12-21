@@ -1,5 +1,5 @@
 
-notify  
+notify
 209 notify:
 transport: false
 slot: false
@@ -37,9 +37,12 @@ status: mounted
 volume name: Disk 1_1
 recording time: 8444
 
-# ...
+...
 
 508 transport info:
 active slot: 1
 clip id: 1
 
+
+### on second connection try:
+120 connection rejected
