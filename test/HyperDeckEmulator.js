@@ -9,9 +9,20 @@ var net = require('net');
 var readline = require('readline');
 
 var state = {
+	protocol_version: {
+		major: 1,
+		minor: 1
+	},
+	model: 'HyperDeck Studio',
 	remote: {
 		enable: false,
 		override: false
+	},
+	notify: {				// reply
+		transport: false,	// 508 transport info: ...
+		slot: false,		// 502 slot info: ...
+		remote: false,
+		configuration: false
 	}
 };
 
@@ -62,7 +73,7 @@ var server = net.createServer({
 				state.remote.enabled = JSON.parse(reparsed[3]);
 			}
 			if (reparsed[5]) {
-				state.remote.enabled = JSON.parse(reparsed[6]);
+				state.remote.override = JSON.parse(reparsed[6]);
 			}
 
 			socket.write(
@@ -76,6 +87,48 @@ var server = net.createServer({
 					)
 				);
 
+			return;
+		}
+
+		reparsed = line.match(/^notify(:\s+(transport:\s+(true|false)))?(:\s+(slot:\s+(true|false)))?(:\s+(remote:\s+(true|false)))?(:\s+(configuration:\s+(true|false)))?/);
+		if (null !== reparsed) {
+			var reply;
+
+			if (reparsed[2]) {
+				state.notify.transport = JSON.parse(reparsed[3]);
+				reply = '200 ok';
+			}
+
+			if (reparsed[5]) {
+				state.notify.slot = JSON.parse(reparsed[6]);
+				reply = '200 ok';
+			}
+
+			if (reparsed[8]) {
+				state.notify.remote = JSON.parse(reparsed[9]);
+				reply = '200 ok';
+			}
+
+			if (reparsed[11]) {
+				state.notify.configuration = JSON.parse(reparsed[12]);
+				reply = '200 ok';
+			}
+
+			if ('undefined' === typeof reply) {
+				reply = util.format(
+					'209 notify:\n' +
+					'transport: "%s"\n' +
+					'slot: "%s"\n' +
+					'remote: "%s"\n' +
+					'configuration: "%s"\n',
+					state.notify.transport,
+					state.notify.slot,
+					state.notify.remote,
+					state.notify.configuration
+				);
+			}
+
+			socket.write(reply + '\n');
 			return;
 		}
 
@@ -117,10 +170,13 @@ var server = net.createServer({
 		if (line.match(/^device info/)) {
 			socket.write(
 				'204 device info:\n' +
-				'protocol version: {Version}\n' +
-				'model: {Model Name}\n' +
+				'protocol version: %s.%s\n' +
+				'model: %s\n' +
 				'unique id: {unique alphanumeric identifier}\n' +
-				'\n'
+				'\n',
+				state.protocol_version.major,
+				state.protocol_version.minor,
+				state.model
 			);
 			return;
 		}
