@@ -19,7 +19,7 @@
     "bcrypt": "*",
     "body-parser": "*",
     "cookie-parser": "*",
-    "ejs": "^1.0.0",
+    "ejs": "^2.5.5",
     "ejs-locals": "^1.0.2",
     "errorhandler": "*",
     "express": "*",
