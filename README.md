@@ -18,8 +18,11 @@ In terminal:
 git clone https://github.com/747500/blackmagic-hyperdeck-ctl
 cd blackmagic-hyperdeck-ctl
 npm install
+echo '[]' > db.json
 npm start
 ```
+
+
 In browser:
 http://127.0.0.1:25006/
 
