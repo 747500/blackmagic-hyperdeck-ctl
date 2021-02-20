@@ -206,13 +206,21 @@ $(function () {
 					.toggleClass('btn-success btn-default');
 		},
 		create: function (viewModel, event) {
+
+			var sorted = viewModel.recordersSorted()
+			var order = 0;
+
+ 			if (sorted.length) {
+				order = sorted[0].order() - 1
+			}
+
 			var deck = {
 				id: undefined,
 				name: 'deck' + (1 + viewModel.recorders().length),
 				host: '',
 				port: 9993,
 				disabled: true,
-				order: viewModel.recordersSorted()[0].order() - 1
+				order: order
 			};
 			socket.emit('deck:create', deck);
 		},
