@@ -11,6 +11,8 @@ var sprintf = require('sprintf');
 
 var rootPath = path.normalize(path.join(__dirname, '..'));
 
+var orig_console_log;
+
 module.exports = {
 	development: {
 		root: rootPath,
@@ -42,9 +44,10 @@ function console_log() {
 		var toExpose = el && 'object' === typeof el;
 		return toExpose ? util.inspect(el) : el;
 	}).value();
-	util.puts(sprintf.apply(this, prefix) + sprintf.apply(this, args));
+	orig_console_log(sprintf.apply(this, prefix) + sprintf.apply(this, args));
 }
 
 if (console.log !== console_log) {
-	console.log = console_log
+	orig_console_log = console.log;
+	console.log = console_log;
 }
